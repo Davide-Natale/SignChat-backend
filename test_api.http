@@ -1,0 +1,31 @@
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "test1@polito.it",
+    "password": "Aa0?aaaa"
+}
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "test1@polito.it",
+    "password": "Aa0?aaa0"
+}
+###
+POST http://localhost:3000/api/auth/refresh-token
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzMzNTA0MDc4LCJleHAiOjE3MzYwOTYwNzh9.OqiYo6JC8zFNIwbWqTreaNg2kNP9bFiLiDKSh23sGGw"
+}
+###
+POST http://localhost:3000/api/auth/change-password
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzMzNTA0Nzg0LCJleHAiOjE3MzM1MDY1ODR9.wAPrx12Y1HcQc5erQSl8N86Jy6tbfdNCekbduXbZznc
+Content-Type: application/json
+
+{
+    "oldPassword": "Aa0?aaaa",
+    "newPassword": "Aa0?aaa0"
+}

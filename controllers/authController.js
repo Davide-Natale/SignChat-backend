@@ -3,26 +3,37 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const generateTokens = require('../utils/generateTokens');
-const { verify } = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
+  //  Check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(422).json({errors: errors.array()});
+  }
+
   const { email, password } = req.body;
 
   try {
+    // Check if email is already registered
+    const user = await User.findOne({ where: { email } });
+    if (user) return res.status(409).json({ message: 'User already registered' });
+
     //  Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    //  Create add user to database
-    const user = await User.create({ email, password: hashedPassword });
+    //  Add new user to database
+    const newUser = await User.create({ email, password: hashedPassword });
 
     //  Generate JWT tokens for the user
-    const tokens = generateTokens(user);
+    const tokens = generateTokens(newUser);
 
     res.status(201).json({ 
         message: 'User registered successfully', 
         user: {
-            id: user.id,
-            email: user.email
+            id: newUser.id,
+            email: newUser.email
         },
         tokens
     });
@@ -32,12 +43,18 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+  //  Check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(422).json({errors: errors.array()});
+  }
+
   const { email, password } = req.body;
 
   try {
     //  Search user in the database
     const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
 
     //  Check password
     const validPassword = await bcrypt.compare(password, user.password);
@@ -53,6 +70,12 @@ exports.login = async (req, res) => {
 };
 
 exports.refreshToken = async (req, res) => {
+  //  Check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(422).json({errors: errors.array()});
+  }
+
   const { refreshToken } = req.body;
 
   try {
@@ -73,9 +96,15 @@ exports.refreshToken = async (req, res) => {
 };
 
 exports.changePassword = async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
-  const userId = req.user.id;
+  //  Check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(422).json({errors: errors.array()});
+  }
 
+  const userId = req.user.id;
+  const { oldPassword, newPassword } = req.body;
+  
   try {
     //  Search user in the database
     const user = await User.findByPk(userId);

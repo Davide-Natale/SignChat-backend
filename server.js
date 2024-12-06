@@ -3,7 +3,6 @@
 require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
-//const {check, validationResult, oneOf} = require('express-validator');        TODO: add validation to api
 const sequelize = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 //const otpRoutes = require('./routes/otpRoutes');
