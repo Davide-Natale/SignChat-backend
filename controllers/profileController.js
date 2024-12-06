@@ -37,20 +37,20 @@ exports.updateProfile = async (req, res) => {
         const checkEmail = await User.findOne({ 
             where: { 
                 email, 
-                id: { [Sequelize.OP.ne]: userId }
+                id: { [Sequelize.Op.ne]: userId }
             }
         });
 
         if(checkEmail) res.status(409).json({ message: 'Email already exists'});
 
         //  Check if phone number is already used
-        const checkPhone = await User.findOne({
-            where: {
-                phone,
-                id: { [Sequelize.OP.ne]: userId }
+        const checkPhone = await User.findOne({ 
+            where: { 
+                phone, 
+                id: { [Sequelize.Op.ne]: userId }
             }
         });
-
+        
         if(checkPhone) res.status(409).json({ message: 'Phone numbr already exists'});
 
         await user.update({firstName, lastName, phone, isDeaf});
@@ -59,9 +59,9 @@ exports.updateProfile = async (req, res) => {
             message: 'Profile updated successfully',
             user: {
                 id: user.id,
-                email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                email: user.email,
                 phone: user.phone,
                 isDeaf: user.isDeaf
             }
@@ -76,7 +76,7 @@ exports.deleteProfile = async (req, res) => {
 
     try {
         //  Search user in the database
-        const user = User.findByPk(userId);
+        const user = await User.findByPk(userId);
         if(!user) res.status(404).json({ message: 'User not found' });
 
         await user.destroy();

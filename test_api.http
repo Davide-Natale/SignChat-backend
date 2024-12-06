@@ -38,10 +38,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxN
 Content-Type: application/json
 
 {
-    "firstName": "Davide",
+    "firstName": "Davide2000",
     "lastName": "Natale",
     "email": "test2@gmail.com",
-    "phone": 1234567890,
+    "phone": "1234567890",
     "isDeaf": false
 }
 ###
