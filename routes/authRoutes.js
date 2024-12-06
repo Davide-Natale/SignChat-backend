@@ -2,17 +2,17 @@
 
 const express = require('express');
 const { check } = require('express-validator');
-const { register, login, refreshToken, changePassword, getProfile } = require('../controllers/authController');
+const { register, login, refreshToken, changePassword } = require('../controllers/authController');
 const authenticate = require('../middlewares/authMiddleware')
 
 const router = express.Router();
 
-router.post('/register', [ 
+router.post('/register', [
     check('email')
         .exists()
         .withMessage('Email parameter is required')
         .isString()
-        .withMessage('Email parameter must be a string')    
+        .withMessage('Email parameter must be a string')
         .isEmail()
         .withMessage('Email parameter is not an email'),
     check('password')
@@ -32,12 +32,12 @@ router.post('/register', [
         .withMessage('Password parameter must contain at least one of these special characters: @$!%*?&#')
 ], register);
 
-router.post('/login',  [ 
+router.post('/login', [
     check('email')
         .exists()
         .withMessage('Email parameter is required')
         .isString()
-        .withMessage('Email parameter must be a string')    
+        .withMessage('Email parameter must be a string')
         .isEmail()
         .withMessage('Email parameter parameter is not an email'),
     check('password')
@@ -49,7 +49,7 @@ router.post('/login',  [
         .withMessage("Password parameter cannot be an empty string")
 ], login);
 
-router.post('/refresh-token', [ 
+router.post('/refresh-token', [
     check('refreshToken')
         .exists()
         .withMessage('RefreshToken parameter is required')
@@ -59,9 +59,7 @@ router.post('/refresh-token', [
         .withMessage("RefreshToken parameter cannot be an empty string")
 ], refreshToken);
 
-
-//  TODO: test this api
-router.post('/change-password', authenticate, [ 
+router.post('/change-password', authenticate, [
     check('oldPassword')
         .exists()
         .withMessage('OldPassword parameter parameter is required')
@@ -85,8 +83,5 @@ router.post('/change-password', authenticate, [
         .matches(/[@$!%*?&#]/)
         .withMessage('NewPassword parameter must contain at least one of these special characters: @$!%*?&#')
 ], changePassword);
-
-//  TODO: move somewhere else
-router.get('/profile', authenticate, getProfile);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const express = require('express');
 const morgan = require('morgan');
 const sequelize = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 //const otpRoutes = require('./routes/otpRoutes');
 
 // Init express
@@ -17,6 +18,7 @@ app.use(express.json());
 
 //  Set-up routes
 app.use('/api/auth', authRoutes);
+app.use('/api', profileRoutes);
 //app.use('/api/otp', otpRoutes);
 
 //  Syncronize database and activate the server

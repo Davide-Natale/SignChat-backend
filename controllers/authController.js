@@ -10,7 +10,7 @@ exports.register = async (req, res) => {
   //  Check validation results
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-      return res.status(422).json({errors: errors.array()});
+    return res.status(422).json({ errors: errors.array() });
   }
 
   const { email, password } = req.body;
@@ -29,13 +29,13 @@ exports.register = async (req, res) => {
     //  Generate JWT tokens for the user
     const tokens = generateTokens(newUser);
 
-    res.status(201).json({ 
-        message: 'User registered successfully', 
-        user: {
-            id: newUser.id,
-            email: newUser.email
-        },
-        tokens
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        id: newUser.id,
+        email: newUser.email
+      },
+      tokens
     });
   } catch (error) {
     res.status(500).json({ message: 'Error registering user', error });
@@ -46,7 +46,7 @@ exports.login = async (req, res) => {
   //  Check validation results
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-      return res.status(422).json({errors: errors.array()});
+    return res.status(422).json({ errors: errors.array() });
   }
 
   const { email, password } = req.body;
@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
     //  Generate JWT tokens for the user
     const tokens = generateTokens(user);
 
-    res.status(200).json(tokens);
+    res.json(tokens);
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error });
   }
@@ -73,7 +73,7 @@ exports.refreshToken = async (req, res) => {
   //  Check validation results
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-      return res.status(422).json({errors: errors.array()});
+    return res.status(422).json({ errors: errors.array() });
   }
 
   const { refreshToken } = req.body;
@@ -88,8 +88,8 @@ exports.refreshToken = async (req, res) => {
 
     // Generate new JWT tokens for the user 
     const tokens = generateTokens(user);
-    
-    res.status(200).json(tokens);
+
+    res.json(tokens);
   } catch {
     res.status(401).json({ message: 'Invalid Refresh Token' });
   }
@@ -99,12 +99,12 @@ exports.changePassword = async (req, res) => {
   //  Check validation results
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-      return res.status(422).json({errors: errors.array()});
+    return res.status(422).json({ errors: errors.array() });
   }
 
   const userId = req.user.id;
   const { oldPassword, newPassword } = req.body;
-  
+
   try {
     //  Search user in the database
     const user = await User.findByPk(userId);
@@ -118,29 +118,13 @@ exports.changePassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await user.update({ password: hashedPassword });
 
-    res.status(200).json({ message: 'Password updated successfully' });
+    res.json({ message: 'Password updated successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error updating password', error });
   }
 };
 
-//  TODO: move somewhere else
-exports.getProfile = async (req, res) => {
-  const userId = req.user.id;
-
-  try {
-    //  Search user in the database
-    const user = await User.findByPk(userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-
-    res.status(200).json({
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching user profile', error });
-  }
-};
+//  TODO: implement using blacklisting with redis
+/*exports.logout = async (req, res) => {
+  res.status(200).json({ message: 'Logout successful' });
+};*/
