@@ -94,7 +94,7 @@ exports.refreshToken = async (req, res) => {
     //  BLacklist the old refresh token
     const currentTime = dayjs();
     const oldTokenTTL = dayjs.unix(payload.exp).diff(currentTime, 'second');
-    blacklistToken(refreshToken, oldTokenTTL);
+    await blacklistToken(refreshToken, oldTokenTTL);
   
     // Generate new JWT tokens for the user 
     const tokens = generateTokens(user);
@@ -163,8 +163,8 @@ exports.logout = async (req, res) => {
     const accessTokenTTL = dayjs.unix(accessPayload.exp).diff(currentTime, 'second');
     const refreshTokenTTL = dayjs.unix(refreshPayload.exp).diff(currentTime, 'second');
 
-    blacklistToken(accessToken, accessTokenTTL);
-    blacklistToken(refreshToken, refreshTokenTTL);
+    await blacklistToken(accessToken, accessTokenTTL);
+    await blacklistToken(refreshToken, refreshTokenTTL);
 
     res.json({ message: 'User logged out successfully' });
   } catch (error) {

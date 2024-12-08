@@ -104,8 +104,8 @@ exports.deleteProfile = async (req, res) => {
         const accessTokenTTL = dayjs.unix(accessPayload.exp).diff(currentTime, 'second');
         const refreshTokenTTL = dayjs.unix(refreshPayload.exp).diff(currentTime, 'second');
 
-        blacklistToken(accessToken, accessTokenTTL);
-        blacklistToken(refreshToken, refreshTokenTTL);
+        await blacklistToken(accessToken, accessTokenTTL);
+        await blacklistToken(refreshToken, refreshTokenTTL);
 
         res.json({ message: 'Profile deleted successfully' });
     } catch (error) {
