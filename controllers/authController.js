@@ -82,7 +82,9 @@ exports.refreshToken = async (req, res) => {
 
   try {
     //  Check if refresh token is blacklisted
-    if(isTokenBlacklisted(refreshToken)) res.status(401).json({ message: 'Refresh token is blacklisted' });
+    const isBlacklisted = await isTokenBlacklisted(refreshToken);
+    if(isBlacklisted) 
+      res.status(401).json({ message: 'Refresh token is blacklisted' });
 
     //  Verify refresh token
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
@@ -151,7 +153,8 @@ exports.logout = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     //  Check if refresh token is blacklisted
-    if(isTokenBlacklisted(refreshToken)) 
+    const isBlacklisted = await isTokenBlacklisted(refreshToken);
+    if(isBlacklisted) 
       res.status(401).json({ message: 'Refresh token is blacklisted' });
 
     //  Verify access and refresh token

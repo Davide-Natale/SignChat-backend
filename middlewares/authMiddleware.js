@@ -13,7 +13,8 @@ const authenticate = async (req, res, next) => {
   try {
     //  Check if token is blacklisted
     const isBlacklisted = await isTokenBlacklisted(token);
-    if(isBlacklisted) res.status(401).json({ message: 'Access Token blacklisted' });
+    if(isBlacklisted) 
+      res.status(401).json({ message: 'Access Token blacklisted' });
 
     //  Verify Access Token
     const payload = jwt.verify(token, process.env.JWT_SECRET);
