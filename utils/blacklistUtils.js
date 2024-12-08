@@ -3,7 +3,9 @@
 const redisClient = require('../config/redisClient');
 
 const blacklistToken = async (token, expiry) => {
-    await redisClient.set(token, 'blacklisted', { EX: expiry });
+    if(expiry > 0) {
+        await redisClient.set(token, 'blacklisted', { EX: expiry });
+    }
 } 
 
 const isTokenBlacklisted = async (token) => {

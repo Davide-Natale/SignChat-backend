@@ -11,7 +11,7 @@ Content-Type: application/json
 
 {
     "email": "test1@polito.it",
-    "password": "Aa0?aaa1"
+    "password": "Aa0?aaaa"
 }
 ###
 POST http://localhost:3000/api/auth/refresh-token
@@ -30,11 +30,19 @@ Content-Type: application/json
     "newPassword": "Aa0?aaa1"
 }
 ###
+POST http://localhost:3000/api/auth/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU2MzgwLCJleHAiOjE3MzM2NTgxODB9.7Fr-GbnYmu__gWeb7Aw_yU8Y4quXoy1oqoE699N7rDE
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU2MzgwLCJleHAiOjE3MzYyNDgzODB9.xkreL_yUKVgtWcyEudUFzAMegY7LrodhFBGI_8fHxLk"
+}
+###
 GET http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNTI3MDMyLCJleHAiOjE3MzM1Mjg4MzJ9.jVwu7mjGIAKxhW-6xVvNtEqfAoYgpLqPhJSpqaEGnLs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU2MzgwLCJleHAiOjE3MzM2NTgxODB9.7Fr-GbnYmu__gWeb7Aw_yU8Y4quXoy1oqoE699N7rDE
 ###
 PUT http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNTI3MDMyLCJleHAiOjE3MzM1Mjg4MzJ9.jVwu7mjGIAKxhW-6xVvNtEqfAoYgpLqPhJSpqaEGnLs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU2MzgwLCJleHAiOjE3MzM2NTgxODB9.7Fr-GbnYmu__gWeb7Aw_yU8Y4quXoy1oqoE699N7rDE
 Content-Type: application/json
 
 {
@@ -46,4 +54,9 @@ Content-Type: application/json
 }
 ###
 DELETE http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNTI3MDMyLCJleHAiOjE3MzM1Mjg4MzJ9.jVwu7mjGIAKxhW-6xVvNtEqfAoYgpLqPhJSpqaEGnLs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU2MzgwLCJleHAiOjE3MzM2NTgxODB9.7Fr-GbnYmu__gWeb7Aw_yU8Y4quXoy1oqoE699N7rDE
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzMzNTA0MDc4LCJleHAiOjE3MzYwOTYwNzh9.OqiYo6JC8zFNIwbWqTreaNg2kNP9bFiLiDKSh23sGGw"
+}

@@ -48,6 +48,14 @@ router.put('/profile', authenticate, [
         .withMessage('IsDeaf parameter must be a boolean')
 ], updateProfile);
 
-router.delete('/profile', authenticate, deleteProfile);
+router.delete('/profile', authenticate, [
+    check('refreshToken')
+        .exists()
+        .withMessage('RefreshToken parameter is required')
+        .isString()
+        .withMessage('RefreshToken parameter must be a string')
+        .notEmpty()
+        .withMessage("RefreshToken parameter cannot be an empty string")
+], deleteProfile);
 
 module.exports = router;

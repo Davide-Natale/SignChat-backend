@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { check } = require('express-validator');
-const { register, login, refreshToken, changePassword } = require('../controllers/authController');
+const { register, login, refreshToken, changePassword, logout } = require('../controllers/authController');
 const authenticate = require('../middlewares/authMiddleware')
 
 const router = express.Router();
@@ -49,6 +49,7 @@ router.post('/login', [
         .withMessage("Password parameter cannot be an empty string")
 ], login);
 
+//  TODO: test blacklisting
 router.post('/refresh-token', [
     check('refreshToken')
         .exists()
@@ -83,5 +84,16 @@ router.post('/change-password', authenticate, [
         .matches(/[@$!%*?&#]/)
         .withMessage('NewPassword parameter must contain at least one of these special characters: @$!%*?&#')
 ], changePassword);
+
+//  TODO: completely test this api
+router.post('/logout', authenticate, [
+    check('refreshToken')
+        .exists()
+        .withMessage('RefreshToken parameter is required')
+        .isString()
+        .withMessage('RefreshToken parameter must be a string')
+        .notEmpty()
+        .withMessage("RefreshToken parameter cannot be an empty string")
+], logout);
 
 module.exports = router;

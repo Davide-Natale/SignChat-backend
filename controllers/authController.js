@@ -3,8 +3,10 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const generateTokens = require('../utils/generateTokens');
+const { blacklistToken, isTokenBlacklisted } = require('../utils/blacklistUtils');
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
+const dayjs = require('dayjs');
 
 exports.register = async (req, res) => {
   //  Check validation results
@@ -79,6 +81,9 @@ exports.refreshToken = async (req, res) => {
   const { refreshToken } = req.body;
 
   try {
+    //  Check if refresh token is blacklisted
+    if(isTokenBlacklisted(refreshToken)) res.status(401).json({ message: 'Refresh token is blacklisted' });
+
     //  Verify refresh token
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
@@ -86,6 +91,11 @@ exports.refreshToken = async (req, res) => {
     const user = await User.findByPk(payload.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
+    //  BLacklist the old refresh token
+    const currentTime = dayjs();
+    const oldTokenTTL = dayjs.unix(payload.exp).diff(currentTime, 'second');
+    blacklistToken(refreshToken, oldTokenTTL);
+  
     // Generate new JWT tokens for the user 
     const tokens = generateTokens(user);
 
@@ -124,7 +134,40 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-//  TODO: implement using blacklisting with redis
-/*exports.logout = async (req, res) => {
-  res.status(200).json({ message: 'Logout successful' });
-};*/
+exports.logout = async (req, res) => {
+  //  Check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  const userId = req.user.id;
+  const accessToken = req.headers['authorization'].split(' ')[1];
+  const { refreshToken } = req.body;
+
+  try {
+    //  Search user in the database
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    //  Check if refresh token is blacklisted
+    if(isTokenBlacklisted(refreshToken)) 
+      res.status(401).json({ message: 'Refresh token is blacklisted' });
+
+    //  Verify access and refresh token
+    const accessPayload = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    const refreshPayload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    // Blacklist both access and refresh token
+    const currentTime = dayjs();
+    const accessTokenTTL = dayjs.unix(accessPayload.exp).diff(currentTime, 'second');
+    const refreshTokenTTL = dayjs.unix(refreshPayload.exp).diff(currentTime, 'second');
+
+    blacklistToken(accessToken, accessTokenTTL);
+    blacklistToken(refreshToken, refreshTokenTTL);
+
+    res.json({ message: 'User logged out successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error logging out', error });
+  }
+};
