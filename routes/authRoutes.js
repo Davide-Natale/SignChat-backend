@@ -49,7 +49,6 @@ router.post('/login', [
         .withMessage("Password parameter cannot be an empty string")
 ], login);
 
-//  TODO: test blacklisting
 router.post('/refresh-token', [
     check('refreshToken')
         .exists()
@@ -85,7 +84,6 @@ router.post('/change-password', authenticate, [
         .withMessage('NewPassword parameter must contain at least one of these special characters: @$!%*?&#')
 ], changePassword);
 
-//  TODO: completely test these api
 router.post('/reset-password/request', [
     check('email')
         .exists()

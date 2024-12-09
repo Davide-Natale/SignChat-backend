@@ -2,7 +2,7 @@ POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-    "email": "test1@polito.it",
+    "email": "test@polito.it",
     "password": "Aa0?aaaa"
 }
 
@@ -12,7 +12,7 @@ POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "test2@gmail.com",
+    "email": "test@polito.it",
     "password": "Aa0?aaaa"
 }
 
@@ -22,7 +22,7 @@ POST http://localhost:3000/api/auth/refresh-token
 Content-Type: application/json
 
 {
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzMzNTA0MDc4LCJleHAiOjE3MzYwOTYwNzh9.OqiYo6JC8zFNIwbWqTreaNg2kNP9bFiLiDKSh23sGGw"
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNzMzNzgyODE3LCJleHAiOjE3MzYzNzQ4MTd9.idScFFR5wRhrPqnhxdC-EYsYNDKPUPLS7H0EnwDQ6SY"
 }
 
 ###
@@ -42,58 +42,57 @@ POST http://localhost:3000/api/auth/reset-password/request
 Content-Type: application/json
 
 {
-    "email": "test1@polito.it"
+    "email": "test@polito.it"
 }
-
 
 ###
 
 POST http://localhost:3000/api/auth/reset-password/confirm
-Content-Type: application/application/json
+Content-Type: application/json
 
 {
-    "email": "test1@polito.it",
-    "otp": "000000",
-    "newPassword": "Aa0?aaa1"
+    "email": "test@polito.it",
+    "otp": "901525",
+    "newPassword": "Aa!9oooo"
 }
 
 ###
 
 POST http://localhost:3000/api/auth/logout
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNzYwMTAzLCJleHAiOjE3MzM3NjE5MDN9.IWqk0whFULsds6ETISpaRbguUAjKh3A3IM5pzm-4u4c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzMzNzc2OTYwLCJleHAiOjE3MzM3Nzg3NjB9.UcBSYbjYGNyzRPuVgzn43uG5VyuPzmdq5-KTjrbGITc
 Content-Type: application/json
 
 {
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNzYwMTAzLCJleHAiOjE3MzYzNTIxMDN9.lLzv4BHyutBQRWOioXogtglJvzzdLxRsGjF9hJU-rAY"
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzMzNzc2OTYwLCJleHAiOjE3MzYzNjg5NjB9.kWZsfg4tQuq0L13dJFjkm55n95Fk717Ng8Pt9MJhI_M"
 }
 
 ###
 
 GET http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU5ODQ5LCJleHAiOjE3MzM2NjE2NDl9.LleM7NSR2nxvkHlaC65LppXhkYpx9btfLWUpo9saZsQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNzMzNzgyODE3LCJleHAiOjE3MzM3ODQ2MTd9.2pvYADKNRmHt73llfV-hBt75TPIzAtVGlvDkcVBr1sM
 
 ###
 
 PUT http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU5ODQ5LCJleHAiOjE3MzM2NjE2NDl9.LleM7NSR2nxvkHlaC65LppXhkYpx9btfLWUpo9saZsQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNzMzNzgyNjU0LCJleHAiOjE3MzM3ODQ0NTR9.HNmUxWGMt7O3JrwEDqOHH__8dQYvZDFN3Bpq6y0or8Y
 Content-Type: application/json
 
 {
-    "firstName": "Davide2000",
+    "firstName": "Davide",
     "lastName": "Natale",
-    "email": "test2@gmail.com",
-    "phone": "1234567890",
+    "email": "test@polito.it",
+    "phone": "1234",
     "isDeaf": true
 }
 
 ###
 
 DELETE http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU2MzgwLCJleHAiOjE3MzM2NTgxODB9.7Fr-GbnYmu__gWeb7Aw_yU8Y4quXoy1oqoE699N7rDE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNzMzNzgyODE3LCJleHAiOjE3MzM3ODQ2MTd9.2pvYADKNRmHt73llfV-hBt75TPIzAtVGlvDkcVBr1sM
 Content-Type: application/json
 
 {
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzMzNTA0MDc4LCJleHAiOjE3MzYwOTYwNzh9.OqiYo6JC8zFNIwbWqTreaNg2kNP9bFiLiDKSh23sGGw"
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNzMzNzgyODE3LCJleHAiOjE3MzYzNzQ4MTd9.idScFFR5wRhrPqnhxdC-EYsYNDKPUPLS7H0EnwDQ6SY"
 }
 
 ###

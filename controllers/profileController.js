@@ -3,6 +3,9 @@
 const { Sequelize } = require('sequelize');
 const User = require('../models/user');
 const { blacklistToken, isTokenBlacklisted } = require('../utils/blacklistUtils');
+const { validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
+const dayjs = require('dayjs');
 
 exports.getProfile = async (req, res) => {
     const userId = req.user.id;
@@ -10,7 +13,7 @@ exports.getProfile = async (req, res) => {
     try {
         //  Search user in the database
         const user = await User.findByPk(userId);
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        if(!user) return res.status(404).json({ message: 'User not found' });
 
         res.json({
             id: user.id,
@@ -26,13 +29,18 @@ exports.getProfile = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
+    //  Check validation results
+    const errors = validationResult(req);
+    if(!errors.isEmpty())
+        return res.status(422).json({ errors: errors.array() });
+
     const userId = req.user.id;
     const { firstName, lastName, email, phone, isDeaf } = req.body;
 
     try {
         //  Search user in the database
         const user = await User.findByPk(userId);
-        if (!user) res.status(404).json({ message: 'User not found' });
+        if(!user) res.status(404).json({ message: 'User not found' });
 
         //  Check if email is already used
         const checkEmail = await User.findOne({
@@ -42,7 +50,7 @@ exports.updateProfile = async (req, res) => {
             }
         });
 
-        if (checkEmail) res.status(409).json({ message: 'Email already exists' });
+        if(checkEmail) return res.status(409).json({ message: 'Email already exists' });
 
         //  Check if phone number is already used
         const checkPhone = await User.findOne({
@@ -52,7 +60,7 @@ exports.updateProfile = async (req, res) => {
             }
         });
 
-        if (checkPhone) res.status(409).json({ message: 'Phone number already exists' });
+        if(checkPhone) return res.status(409).json({ message: 'Phone number already exists' });
 
         await user.update({ firstName, lastName, email, phone, isDeaf });
 
@@ -68,16 +76,15 @@ exports.updateProfile = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating profile', error: error });
+        res.status(500).json({ message: 'Error updating profile', error });
     }
 };
 
 exports.deleteProfile = async (req, res) => {
     //  Check validation results
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    if(!errors.isEmpty())
         return res.status(422).json({ errors: errors.array() });
-    }
 
     const userId = req.user.id;
     const accessToken = req.headers['authorization'].split(' ')[1];
@@ -86,15 +93,15 @@ exports.deleteProfile = async (req, res) => {
     try {
         //  Search user in the database
         const user = await User.findByPk(userId);
-        if (!user) res.status(404).json({ message: 'User not found' });
+        if(!user) return res.status(404).json({ message: 'User not found' });
 
         //  Check if refresh token is blacklisted
         const isBlacklisted = await isTokenBlacklisted(refreshToken);
         if(isBlacklisted) 
-            res.status(401).json({ message: 'Refresh token is blacklisted' });
+            return res.status(401).json({ message: 'Refresh token is blacklisted' });
 
         //  Verify access and refresh token
-        const accessPayload = jwt.verify(refreshToken, process.env.JWT_SECRET);
+        const accessPayload = jwt.verify(accessToken, process.env.JWT_SECRET);
         const refreshPayload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
         //  Delete user from database
@@ -110,6 +117,6 @@ exports.deleteProfile = async (req, res) => {
 
         res.json({ message: 'Profile deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting profile', error: error });
+        res.status(500).json({ message: 'Error deleting profile', error });
     }
 };

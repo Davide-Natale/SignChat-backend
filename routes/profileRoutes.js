@@ -7,7 +7,6 @@ const authenticate = require('../middlewares/authMiddleware')
 
 const router = express.Router();
 
-//  TODO: test these api
 router.get('/profile', authenticate, getProfile);
 
 router.put('/profile', authenticate, [
