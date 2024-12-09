@@ -234,9 +234,9 @@ exports.logout = async (req, res) => {
       res.status(401).json({ message: 'Refresh token is blacklisted' });
 
     //  Verify access and refresh token
-    const accessPayload = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    const accessPayload = jwt.verify(accessToken, process.env.JWT_SECRET);
     const refreshPayload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-
+    
     // Blacklist both access and refresh token
     const currentTime = dayjs();
     const accessTokenTTL = dayjs.unix(accessPayload.exp).diff(currentTime, 'second');

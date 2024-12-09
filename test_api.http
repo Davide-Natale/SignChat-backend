@@ -48,7 +48,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:3000/api/auth/reset-password/request
+POST http://localhost:3000/api/auth/reset-password/confirm
 Content-Type: application/application/json
 
 {
@@ -60,11 +60,11 @@ Content-Type: application/application/json
 ###
 
 POST http://localhost:3000/api/auth/logout
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU5ODQ5LCJleHAiOjE3MzM2NjE2NDl9.LleM7NSR2nxvkHlaC65LppXhkYpx9btfLWUpo9saZsQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNzYwMTAzLCJleHAiOjE3MzM3NjE5MDN9.IWqk0whFULsds6ETISpaRbguUAjKh3A3IM5pzm-4u4c
 Content-Type: application/json
 
 {
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU5ODQ5LCJleHAiOjE3MzYyNTE4NDl9.uDN8QEIt7Zv0MNcvjXsH3RTFMPe6GcOZR3gNNNITQpY"
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNzYwMTAzLCJleHAiOjE3MzYzNTIxMDN9.lLzv4BHyutBQRWOioXogtglJvzzdLxRsGjF9hJU-rAY"
 }
 
 ###
