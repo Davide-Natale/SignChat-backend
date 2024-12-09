@@ -86,7 +86,7 @@ router.post('/change-password', authenticate, [
 ], changePassword);
 
 //  TODO: completely test these api
-router.post('/password-reset/request', [
+router.post('/reset-password/request', [
     check('email')
         .exists()
         .withMessage('Email parameter is required')
@@ -96,7 +96,7 @@ router.post('/password-reset/request', [
         .withMessage('Email parameter parameter is not an email')
 ], sendOtp);
 
-router.post('/password-reset/confirm', [
+router.post('/reset-password/confirm', [
     check('email')
         .exists()
         .withMessage('Email parameter is required')

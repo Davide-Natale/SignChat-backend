@@ -5,7 +5,9 @@ Content-Type: application/json
     "email": "test1@polito.it",
     "password": "Aa0?aaaa"
 }
+
 ###
+
 POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
@@ -13,14 +15,18 @@ Content-Type: application/json
     "email": "test2@gmail.com",
     "password": "Aa0?aaaa"
 }
+
 ###
+
 POST http://localhost:3000/api/auth/refresh-token
 Content-Type: application/json
 
 {
     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzMzNTA0MDc4LCJleHAiOjE3MzYwOTYwNzh9.OqiYo6JC8zFNIwbWqTreaNg2kNP9bFiLiDKSh23sGGw"
 }
+
 ###
+
 POST http://localhost:3000/api/auth/change-password
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzMzNTIwNjUzLCJleHAiOjE3MzM1MjI0NTN9.UNgEHHfvOidhqjd41hFDm5eNcgSrRby9Eh7kOz1VVR8
 Content-Type: application/json
@@ -29,7 +35,30 @@ Content-Type: application/json
     "oldPassword": "Aa0?aaa0",
     "newPassword": "Aa0?aaa1"
 }
+
 ###
+
+POST http://localhost:3000/api/auth/reset-password/request
+Content-Type: application/json
+
+{
+    "email": "test1@polito.it"
+}
+
+
+###
+
+POST http://localhost:3000/api/auth/reset-password/request
+Content-Type: application/application/json
+
+{
+    "email": "test1@polito.it",
+    "otp": "000000",
+    "newPassword": "Aa0?aaa1"
+}
+
+###
+
 POST http://localhost:3000/api/auth/logout
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU5ODQ5LCJleHAiOjE3MzM2NjE2NDl9.LleM7NSR2nxvkHlaC65LppXhkYpx9btfLWUpo9saZsQ
 Content-Type: application/json
@@ -37,10 +66,14 @@ Content-Type: application/json
 {
     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU5ODQ5LCJleHAiOjE3MzYyNTE4NDl9.uDN8QEIt7Zv0MNcvjXsH3RTFMPe6GcOZR3gNNNITQpY"
 }
+
 ###
+
 GET http://localhost:3000/api/profile
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU5ODQ5LCJleHAiOjE3MzM2NjE2NDl9.LleM7NSR2nxvkHlaC65LppXhkYpx9btfLWUpo9saZsQ
+
 ###
+
 PUT http://localhost:3000/api/profile
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU5ODQ5LCJleHAiOjE3MzM2NjE2NDl9.LleM7NSR2nxvkHlaC65LppXhkYpx9btfLWUpo9saZsQ
 Content-Type: application/json
@@ -52,7 +85,9 @@ Content-Type: application/json
     "phone": "1234567890",
     "isDeaf": true
 }
+
 ###
+
 DELETE http://localhost:3000/api/profile
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzMzNjU2MzgwLCJleHAiOjE3MzM2NTgxODB9.7Fr-GbnYmu__gWeb7Aw_yU8Y4quXoy1oqoE699N7rDE
 Content-Type: application/json
@@ -60,3 +95,5 @@ Content-Type: application/json
 {
     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzMzNTA0MDc4LCJleHAiOjE3MzYwOTYwNzh9.OqiYo6JC8zFNIwbWqTreaNg2kNP9bFiLiDKSh23sGGw"
 }
+
+###
