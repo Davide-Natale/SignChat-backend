@@ -2,8 +2,10 @@
 
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const sendEmail = require('../utils/sendEmail');
 const generateTokens = require('../utils/generateTokens');
 const { blacklistToken, isTokenBlacklisted } = require('../utils/blacklistUtils');
+const { generateOtp, storeOtp, deleteOtp, isOtpValid, getOtpTTL } = require('../utils/otpUtils');
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const dayjs = require('dayjs');
@@ -135,6 +137,80 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ message: 'Error updating password', error });
   }
 };
+
+exports.sendOtp = async (req, res) => {
+  //  Check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  const { email } = req.body;
+
+  try {
+    //  Search user in the database
+    const user = await User.findOne({ where: { email } });
+
+    if(user) {
+      //  Check if exists already an valid OTP and prevent too frequent request
+      const otpTTL = await getOtpTTL(email);
+      
+      if(otpTTL > 3 * 60)
+        return res.status(429)
+          .json({ message: 'OTP request is too frequent. Please wait before requesting again.' });
+
+      // Generate new OTP
+      const otp = generateOtp();
+
+      //  Store new OTP in Redis with a 5-minute expiry
+      await storeOtp(email, otp, 5 * 60);
+
+      // Send OTP via email
+      sendEmail({
+        to: email, 
+        subject: 'Password Reset OTP',
+        text: `Use this code to complete the password reset process: ${otp}.\nIt will expire in 5 minutes.`
+      });
+    }
+    
+    res.json({ message: 'If the email is registered, an OTP has been sent.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error sending OTP', error: error });
+  }
+}
+
+exports.resetPassword = async (req, res) => {
+  //  Check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  const { email, otp, newPassword } = req.body;
+
+  try {
+    const isValid = await isOtpValid(email, otp);
+
+    if(!isValid)
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+
+    // Delete OTP from Redis
+    await deleteOtp(email);
+
+    //  Search user in the database
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await user.update({ password: hashedPassword });
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error resetting password', error: err.message });
+  }
+}
 
 exports.logout = async (req, res) => {
   //  Check validation results

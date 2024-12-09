@@ -7,7 +7,6 @@ const sequelize = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const redisClient = require('./config/redisClient');
-//const otpRoutes = require('./routes/otpRoutes');
 
 // Init express
 const app = express();
@@ -20,7 +19,6 @@ app.use(express.json());
 //  Set-up routes
 app.use('/api/auth', authRoutes);
 app.use('/api', profileRoutes);
-//app.use('/api/otp', otpRoutes);
 
 (async () => {
   try {
