@@ -2,6 +2,7 @@
 
 const { Sequelize } = require('sequelize');
 const User = require('../models/user');
+const { sendEmail, getDeleteAccountMessage } = require('../utils/emailUtils');
 const { blacklistToken, isTokenBlacklisted } = require('../utils/blacklistUtils');
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
@@ -104,6 +105,9 @@ exports.deleteProfile = async (req, res) => {
         const accessPayload = jwt.verify(accessToken, process.env.JWT_SECRET);
         const refreshPayload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
+        //  Save user email before deletion to send email confirmation
+        const email = user.email;
+
         //  Delete user from database
         await user.destroy();
 
@@ -114,6 +118,14 @@ exports.deleteProfile = async (req, res) => {
 
         await blacklistToken(accessToken, accessTokenTTL);
         await blacklistToken(refreshToken, refreshTokenTTL);
+
+        /*  TODO: uncomment on production
+        //  Send confirmation email for profile delation
+        sendEmail({
+            to: email, 
+            subject: 'Account Deletion Confirmation',
+            html: getDeleteAccountMessage()
+          }); */
 
         res.json({ message: 'Profile deleted successfully' });
     } catch (error) {

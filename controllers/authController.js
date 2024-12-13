@@ -2,7 +2,7 @@
 
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
-const sendEmail = require('../utils/sendEmail');
+const { sendEmail, getRegistrationConfirmMessage ,getOtpMessage, getChangePasswordMessage } = require('../utils/emailUtils');
 const generateTokens = require('../utils/generateTokens');
 const { blacklistToken, isTokenBlacklisted } = require('../utils/blacklistUtils');
 const { generateOtp, storeOtp, deleteOtp, isOtpValid, getOtpTTL } = require('../utils/otpUtils');
@@ -32,6 +32,14 @@ exports.register = async (req, res) => {
 
     //  Generate JWT tokens for the user
     const tokens = generateTokens(newUser);
+
+    /*  TODO: uncomment on production
+    //  Send confirmation email for registration
+    sendEmail({
+      to: email, 
+      subject: 'Registration Confirmation',
+      html: getRegistrationConfirmMessage()
+    }); */
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -130,6 +138,14 @@ exports.changePassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await user.update({ password: hashedPassword });
 
+    /*  TODO: uncomment on production
+    //  Send confirmation email for change password
+    sendEmail({
+      to: user.email, 
+      subject: 'Change Password Confirmation',
+      html: getChangePasswordMessage()
+    }); */
+
     res.json({ message: 'Password updated successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error updating password', error });
@@ -166,7 +182,7 @@ exports.sendOtp = async (req, res) => {
       sendEmail({
         to: email, 
         subject: 'Password Reset OTP',
-        text: `Use this code to complete the password reset process: ${otp}.\nIt will expire in 5 minutes.`
+        html: getOtpMessage(otp)
       });
     }
     
@@ -201,6 +217,14 @@ exports.resetPassword = async (req, res) => {
     //  Store new password in the database
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await user.update({ password: hashedPassword });
+
+    /*  TODO: uncomment on production
+    //  Send confirmation email for reset password
+    sendEmail({
+      to: email, 
+      subject: 'Change Password Confirmation',
+      html: getChangePasswordMessage()
+    }); */
 
     res.json({ message: 'Password reset successfully' });
   } catch (err) {
