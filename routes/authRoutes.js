@@ -139,4 +139,8 @@ router.post('/logout', authenticate, [
         .withMessage("RefreshToken parameter cannot be an empty string")
 ], logout);
 
+router.get('/status', authenticate, (_, res) => {
+    res.json({ message: "User is authenticated" })
+});
+
 module.exports = router;

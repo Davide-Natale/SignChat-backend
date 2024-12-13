@@ -68,6 +68,11 @@ Content-Type: application/json
 
 ###
 
+GET http://localhost:3000/api/auth/status
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTczNDEyNTk0MiwiZXhwIjoxNzM0MTI3NzQyfQ.Drb-u_A5Pu-sOcqyEKZeULPF-QTBA0j1H9v30lJnQLM
+
+###
+
 GET http://localhost:3000/api/profile
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNzMzNzgyODE3LCJleHAiOjE3MzM3ODQ2MTd9.2pvYADKNRmHt73llfV-hBt75TPIzAtVGlvDkcVBr1sM
 
