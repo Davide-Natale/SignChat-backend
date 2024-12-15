@@ -18,9 +18,9 @@ exports.getProfile = async (req, res) => {
 
         res.json({
             id: user.id,
-            email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
+            email: user.email,
             phone: user.phone,
             isDeaf: user.isDeaf
         });
