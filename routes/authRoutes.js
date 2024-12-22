@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { check } = require('express-validator');
-const { register, login, refreshToken, changePassword, sendOtp, resetPassword, logout } = require('../controllers/authController');
+const { register, login, refreshToken, changePassword, sendOtp, resetPassword, verifyOtp, logout } = require('../controllers/authController');
 const authenticate = require('../middlewares/authMiddleware')
 
 const router = express.Router();
@@ -94,7 +94,7 @@ router.post('/reset-password/request', [
         .withMessage('Email parameter parameter is not an email')
 ], sendOtp);
 
-router.post('/reset-password/confirm', [
+router.post('/reset-password/verify-otp', [
     check('email')
         .exists()
         .withMessage('Email parameter is required')
@@ -111,6 +111,9 @@ router.post('/reset-password/confirm', [
         .withMessage('Otp parameter must be exactly 6 digits')
         .isNumeric()
         .withMessage('Otp parameter must contain only numbers.'),
+], verifyOtp);
+
+router.post('/reset-password/confirm', authenticate, [
     check('newPassword')
         .exists()
         .withMessage('NewPassword parameter is required')
@@ -126,7 +129,6 @@ router.post('/reset-password/confirm', [
         .withMessage('NewPassword parameter must contain at least one number')
         .matches(/[@$!%*?&#]/)
         .withMessage('NewPassword parameter must contain at least one of these special characters: @$!%*?&#')
-
 ], resetPassword);
 
 router.post('/logout', authenticate, [

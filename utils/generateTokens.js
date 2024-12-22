@@ -2,20 +2,30 @@
 
 const jwt = require('jsonwebtoken');
 
-const generateTokens = (user) => {
+const generateTokens = (user, 
+  options = { 
+    generateBoth: true,
+    accessExpiry: '30m',
+    refreshExpiry: '30d'
+  }
+) => {
   const accessToken = jwt.sign(
     { id: user.id },
     process.env.JWT_SECRET,
-    { expiresIn: '30m' }
+    { expiresIn: options.accessExpiry }
   );
 
-  const refreshToken = jwt.sign(
-    { id: user.id },
-    process.env.JWT_REFRESH_SECRET,
-    { expiresIn: '30d' }
-  );
+  if(options.generateBoth) {
+    const refreshToken = jwt.sign(
+      { id: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: options.refreshExpiry }
+    );
 
-  return { accessToken, refreshToken };
+    return { accessToken, refreshToken };
+  }
+
+  return { accessToken };
 };
 
 module.exports = generateTokens;

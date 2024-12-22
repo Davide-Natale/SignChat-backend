@@ -190,15 +190,15 @@ exports.sendOtp = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error sending OTP', error: error });
   }
-}
+};
 
-exports.resetPassword = async (req, res) => {
+exports.verifyOtp = async(req, res) => {
   //  Check validation results
   const errors = validationResult(req);
   if(!errors.isEmpty())
     return res.status(422).json({ errors: errors.array() });
 
-  const { email, otp, newPassword } = req.body;
+  const { email, otp } = req.body;
 
   try {
     const isValid = await isOtpValid(email, otp);
@@ -213,6 +213,38 @@ exports.resetPassword = async (req, res) => {
     const user = await User.findOne({ where: { email } });
     if(!user)
       return res.status(404).json({ message: 'User not found' });
+
+    //  Generate a temporary access token with a short expiry time (5 minutes)
+    const token = generateTokens(user, { generateBoth: false, accessExpiry: '5m' });
+
+    res.json(token);
+  } catch (err) {
+    res.status(500).json({ message: 'OTP verification failed' });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  //  Check validation results
+  const errors = validationResult(req);
+  if(!errors.isEmpty())
+    return res.status(422).json({ errors: errors.array() });
+
+  const userId = req.user.id;
+  const accessToken = req.headers['authorization'].split(' ')[1];
+  const { newPassword } = req.body;
+
+  try {
+    //  Search user in the database
+    const user = await User.findByPk(userId);
+    if(!user) return res.status(404).json({ message: 'User not found' });
+
+    //  Verify temporary access token
+    const accessPayload = jwt.verify(accessToken, process.env.JWT_SECRET);
+
+    // Blacklist temporary access token
+    const currentTime = dayjs();
+    const accessTokenTTL = dayjs.unix(accessPayload.exp).diff(currentTime, 'second');
+    await blacklistToken(accessToken, accessTokenTTL);
 
     //  Store new password in the database
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -230,7 +262,7 @@ exports.resetPassword = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Error resetting password', error: err.message });
   }
-}
+};
 
 exports.logout = async (req, res) => {
   //  Check validation results

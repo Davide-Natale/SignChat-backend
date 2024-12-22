@@ -2,7 +2,7 @@ POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-    "email": "test@polito.it",
+    "email": "daxnatale@gmail.com",
     "password": "Aa0?aaaa"
 }
 
@@ -12,8 +12,8 @@ POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "test@polito.it",
-    "password": "Aa0?aaaa"
+    "email": "daxnatale@gmail.com",
+    "password": "Aa!9ooop"
 }
 
 ###
@@ -42,33 +42,42 @@ POST http://localhost:3000/api/auth/reset-password/request
 Content-Type: application/json
 
 {
-    "email": "test@polito.it"
+    "email": "daxnatale@gmail.com"
+}
+
+###
+
+POST http://localhost:3000/api/auth/reset-password/verify-otp
+Content-Type: application/json
+
+{
+    "email": "daxnatale@gmail.com",
+    "otp": "434723"
 }
 
 ###
 
 POST http://localhost:3000/api/auth/reset-password/confirm
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjIsImlhdCI6MTczNDg4ODc1MiwiZXhwIjoxNzM0ODg5MDUyfQ.J0swLITMGoNV_RWI3qjoDWUOSj7UXeeNPrUjA5gucbc
 Content-Type: application/json
 
 {
-    "email": "test@polito.it",
-    "otp": "901525",
-    "newPassword": "Aa!9oooo"
+    "newPassword": "Aa!9ooop"
 }
 
 ###
 
 POST http://localhost:3000/api/auth/logout
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzMzNzc2OTYwLCJleHAiOjE3MzM3Nzg3NjB9.UcBSYbjYGNyzRPuVgzn43uG5VyuPzmdq5-KTjrbGITc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTczNDg4Njc1NCwiZXhwIjoxNzM0ODg4NTU0fQ.8JcW4msuLUzdGWs_Uer0x5zjT1DNP4iQXzbCPLwXXa4
 Content-Type: application/json
 
 {
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzMzNzc2OTYwLCJleHAiOjE3MzYzNjg5NjB9.kWZsfg4tQuq0L13dJFjkm55n95Fk717Ng8Pt9MJhI_M"
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTczNDg4Njc1NCwiZXhwIjoxNzM3NDc4NzU0fQ.NSUjPDMFzIV6aLF16AJjlumxaJsp4HA46KpW-vbuPr8"
 }
 
 ###
 
-GET http://localhost:3000/api/auth/status
+GET http://localhost:3000/api/auth/verify
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTczNDEyNTk0MiwiZXhwIjoxNzM0MTI3NzQyfQ.Drb-u_A5Pu-sOcqyEKZeULPF-QTBA0j1H9v30lJnQLM
 
 ###
