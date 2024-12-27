@@ -250,13 +250,12 @@ exports.resetPassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await user.update({ password: hashedPassword });
 
-    /*  TODO: uncomment on production
     //  Send confirmation email for reset password
     sendEmail({
-      to: email, 
+      to: user.email, 
       subject: 'Change Password Confirmation',
       html: getChangePasswordMessage()
-    }); */
+    });
 
     res.json({ message: 'Password reset successfully' });
   } catch (err) {
