@@ -22,7 +22,7 @@ exports.getProfile = async (req, res) => {
             lastName: user.lastName,
             email: user.email,
             phone: user.phone,
-            isDeaf: user.isDeaf
+            imageProfile: user.imageProfile
         });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching user profile', error });
@@ -36,7 +36,7 @@ exports.updateProfile = async (req, res) => {
         return res.status(422).json({ errors: errors.array() });
 
     const userId = req.user.id;
-    const { firstName, lastName, email, phone, isDeaf } = req.body;
+    const { firstName, lastName, email, phone } = req.body;
 
     try {
         //  Search user in the database
@@ -63,7 +63,7 @@ exports.updateProfile = async (req, res) => {
 
         if(checkPhone) return res.status(409).json({ message: 'Phone number already exists' });
 
-        await user.update({ firstName, lastName, email, phone, isDeaf });
+        await user.update({ firstName, lastName, email, phone });
 
         res.json({
             message: 'Profile updated successfully',
@@ -73,7 +73,7 @@ exports.updateProfile = async (req, res) => {
                 lastName: user.lastName,
                 email: user.email,
                 phone: user.phone,
-                isDeaf: user.isDeaf
+                imageProfile: user.imageProfile
             }
         });
     } catch (error) {

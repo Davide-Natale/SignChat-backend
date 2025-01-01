@@ -39,12 +39,7 @@ router.put('/profile', authenticate, [
         .notEmpty()
         .withMessage("Phone parameter cannot be an empty string")
         .isNumeric()
-        .withMessage('Phone parameter must contain only numeric characters'),
-    check('isDeaf')
-        .exists()
-        .withMessage('IsDeaf parameter is required')
-        .isBoolean()
-        .withMessage('IsDeaf parameter must be a boolean')
+        .withMessage('Phone parameter must contain only numeric characters')
 ], updateProfile);
 
 router.delete('/profile', authenticate, [

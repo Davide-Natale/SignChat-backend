@@ -27,8 +27,8 @@ const User = sequelize.define('User', {
   phone: {
     type: DataTypes.STRING
   },
-  isDeaf: {
-    type: DataTypes.BOOLEAN
+  imageProfile: {
+    type: DataTypes.STRING
   }
 },
   {

@@ -95,8 +95,7 @@ Content-Type: application/json
     "firstName": "Davide",
     "lastName": "Natale",
     "email": "test@polito.it",
-    "phone": "1234",
-    "isDeaf": true
+    "phone": "1234"
 }
 
 ###

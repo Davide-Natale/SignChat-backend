@@ -2,7 +2,7 @@
 
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
-const { sendEmail, getRegistrationConfirmMessage ,getOtpMessage, getChangePasswordMessage } = require('../utils/emailUtils');
+const { sendEmail, getRegistrationConfirmMessage, getOtpMessage, getChangePasswordMessage } = require('../utils/emailUtils');
 const generateTokens = require('../utils/generateTokens');
 const { blacklistToken, isTokenBlacklisted } = require('../utils/blacklistUtils');
 const { generateOtp, storeOtp, deleteOtp, isOtpValid, getOtpTTL } = require('../utils/otpUtils');
