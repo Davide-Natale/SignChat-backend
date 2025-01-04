@@ -22,7 +22,7 @@ exports.register = async (req, res) => {
   try {
     // Check if email is already registered
     const user = await User.findOne({ where: { email } });
-    if(user) return res.status(409).json({ message: 'User already registered' });
+    if(user) return res.status(409).json({ message: 'User already registered.' });
 
     //  Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -42,7 +42,7 @@ exports.register = async (req, res) => {
     }); */
 
     res.status(201).json({
-      message: 'User registered successfully',
+      message: 'User registered successfully.',
       user: {
         id: newUser.id,
         email: newUser.email
@@ -50,7 +50,7 @@ exports.register = async (req, res) => {
       tokens
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error registering user', error });
+    res.status(500).json({ message: 'Error registering user.', error });
   }
 };
 
@@ -66,18 +66,18 @@ exports.login = async (req, res) => {
   try {
     //  Search user in the database
     const user = await User.findOne({ where: { email } });
-    if(!user) return res.status(401).json({ message: 'Invalid credentials' });
+    if(!user) return res.status(401).json({ message: 'Invalid credentials.' });
 
     //  Check password
     const validPassword = await bcrypt.compare(password, user.password);
-    if(!validPassword) return res.status(401).json({ message: 'Invalid credentials' });
+    if(!validPassword) return res.status(401).json({ message: 'Invalid credentials.' });
 
     //  Generate JWT tokens for the user
     const tokens = generateTokens(user);
 
     res.json(tokens);
   } catch (error) {
-    res.status(500).json({ message: 'Error logging in', error });
+    res.status(500).json({ message: 'Error logging in.', error });
   }
 };
 
@@ -93,14 +93,14 @@ exports.refreshToken = async (req, res) => {
     //  Check if refresh token is blacklisted
     const isBlacklisted = await isTokenBlacklisted(refreshToken);
     if(isBlacklisted) 
-      return res.status(401).json({ message: 'Refresh token is blacklisted' });
+      return res.status(401).json({ message: 'Refresh token is blacklisted.' });
 
     //  Verify refresh token
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
     //  Search user in the database
     const user = await User.findByPk(payload.id);
-    if(!user) return res.status(404).json({ message: 'User not found' });
+    if(!user) return res.status(404).json({ message: 'User not found.' });
 
     //  BLacklist the old refresh token
     const currentTime = dayjs();
@@ -112,7 +112,7 @@ exports.refreshToken = async (req, res) => {
 
     res.json(tokens);
   } catch {
-    res.status(401).json({ message: 'Invalid Refresh Token' });
+    res.status(401).json({ message: 'Invalid Refresh Token.' });
   }
 };
 
@@ -128,11 +128,11 @@ exports.changePassword = async (req, res) => {
   try {
     //  Search user in the database
     const user = await User.findByPk(userId);
-    if(!user) return res.status(404).json({ message: 'User not found' });
+    if(!user) return res.status(404).json({ message: 'User not found.' });
 
     // Check if the old password matches the current password
     const validPassword = await bcrypt.compare(oldPassword, user.password);
-    if(!validPassword) return res.status(401).json({ message: 'Old password is incorrect' });
+    if(!validPassword) return res.status(401).json({ message: 'Old password is incorrect.' });
 
     // Hash and save the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -145,9 +145,9 @@ exports.changePassword = async (req, res) => {
       html: getChangePasswordMessage()
     });
 
-    res.json({ message: 'Password updated successfully' });
+    res.json({ message: 'Password updated successfully.' });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating password', error });
+    res.status(500).json({ message: 'Error updating password.', error });
   }
 };
 
@@ -187,7 +187,7 @@ exports.sendOtp = async (req, res) => {
     
     res.json({ message: 'If the email is registered, an OTP has been sent.' });
   } catch (error) {
-    res.status(500).json({ message: 'Error sending OTP', error: error });
+    res.status(500).json({ message: 'Error sending OTP.', error: error });
   }
 };
 
@@ -203,7 +203,7 @@ exports.verifyOtp = async(req, res) => {
     const isValid = await isOtpValid(email, otp);
 
     if(!isValid)
-      return res.status(400).json({ message: 'Invalid or expired OTP' });
+      return res.status(400).json({ message: 'Invalid or expired OTP.' });
 
     // Delete OTP from Redis
     await deleteOtp(email);
@@ -211,14 +211,14 @@ exports.verifyOtp = async(req, res) => {
     //  Search user in the database
     const user = await User.findOne({ where: { email } });
     if(!user)
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found.' });
 
     //  Generate a temporary access token with a short expiry time (5 minutes)
     const token = generateTokens(user, { generateBoth: false, accessExpiry: '5m' });
 
     res.json(token);
   } catch (err) {
-    res.status(500).json({ message: 'OTP verification failed' });
+    res.status(500).json({ message: 'OTP verification failed.' });
   }
 };
 
@@ -235,7 +235,7 @@ exports.resetPassword = async (req, res) => {
   try {
     //  Search user in the database
     const user = await User.findByPk(userId);
-    if(!user) return res.status(404).json({ message: 'User not found' });
+    if(!user) return res.status(404).json({ message: 'User not found.' });
 
     //  Verify temporary access token
     const accessPayload = jwt.verify(accessToken, process.env.JWT_SECRET);
@@ -256,9 +256,9 @@ exports.resetPassword = async (req, res) => {
       html: getChangePasswordMessage()
     });
 
-    res.json({ message: 'Password reset successfully' });
+    res.json({ message: 'Password reset successfully.' });
   } catch (err) {
-    res.status(500).json({ message: 'Error resetting password', error: err.message });
+    res.status(500).json({ message: 'Error resetting password.', error: err.message });
   }
 };
 
@@ -275,12 +275,12 @@ exports.logout = async (req, res) => {
   try {
     //  Search user in the database
     const user = await User.findByPk(userId);
-    if(!user) return res.status(404).json({ message: 'User not found' });
+    if(!user) return res.status(404).json({ message: 'User not found.' });
 
     //  Check if refresh token is blacklisted
     const isBlacklisted = await isTokenBlacklisted(refreshToken);
     if(isBlacklisted) 
-      return res.status(401).json({ message: 'Refresh token is blacklisted' });
+      return res.status(401).json({ message: 'Refresh token is blacklisted.' });
 
     //  Verify access and refresh token
     const accessPayload = jwt.verify(accessToken, process.env.JWT_SECRET);
@@ -294,8 +294,8 @@ exports.logout = async (req, res) => {
     await blacklistToken(accessToken, accessTokenTTL);
     await blacklistToken(refreshToken, refreshTokenTTL);
 
-    res.json({ message: 'User logged out successfully' });
+    res.json({ message: 'User logged out successfully.' });
   } catch (error) {
-    res.status(500).json({ message: 'Error logging out', error });
+    res.status(500).json({ message: 'Error logging out.', error });
   }
 };

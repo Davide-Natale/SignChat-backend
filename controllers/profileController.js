@@ -14,7 +14,7 @@ exports.getProfile = async (req, res) => {
     try {
         //  Search user in the database
         const user = await User.findByPk(userId);
-        if(!user) return res.status(404).json({ message: 'User not found' });
+        if(!user) return res.status(404).json({ message: 'User not found.' });
 
         res.json({
             id: user.id,
@@ -25,7 +25,7 @@ exports.getProfile = async (req, res) => {
             imageProfile: user.imageProfile
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching user profile', error });
+        res.status(500).json({ message: 'Error fetching user profile.', error });
     }
 };
 
@@ -41,7 +41,7 @@ exports.updateProfile = async (req, res) => {
     try {
         //  Search user in the database
         const user = await User.findByPk(userId);
-        if(!user) res.status(404).json({ message: 'User not found' });
+        if(!user) res.status(404).json({ message: 'User not found.' });
 
         //  Check if email is already used
         const checkEmail = await User.findOne({
@@ -51,7 +51,7 @@ exports.updateProfile = async (req, res) => {
             }
         });
 
-        if(checkEmail) return res.status(409).json({ message: 'Email already exists' });
+        if(checkEmail) return res.status(409).json({ message: 'Email already exists.' });
 
         //  Check if phone number is already used
         const checkPhone = await User.findOne({
@@ -61,12 +61,12 @@ exports.updateProfile = async (req, res) => {
             }
         });
 
-        if(checkPhone) return res.status(409).json({ message: 'Phone number already exists' });
+        if(checkPhone) return res.status(409).json({ message: 'Phone number already exists.' });
 
         await user.update({ firstName, lastName, email, phone });
 
         res.json({
-            message: 'Profile updated successfully',
+            message: 'Profile updated successfully.',
             user: {
                 id: user.id,
                 firstName: user.firstName,
@@ -77,7 +77,7 @@ exports.updateProfile = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating profile', error });
+        res.status(500).json({ message: 'Error updating profile.', error });
     }
 };
 
@@ -94,12 +94,12 @@ exports.deleteProfile = async (req, res) => {
     try {
         //  Search user in the database
         const user = await User.findByPk(userId);
-        if(!user) return res.status(404).json({ message: 'User not found' });
+        if(!user) return res.status(404).json({ message: 'User not found.' });
 
         //  Check if refresh token is blacklisted
         const isBlacklisted = await isTokenBlacklisted(refreshToken);
         if(isBlacklisted) 
-            return res.status(401).json({ message: 'Refresh token is blacklisted' });
+            return res.status(401).json({ message: 'Refresh token is blacklisted.' });
 
         //  Verify access and refresh token
         const accessPayload = jwt.verify(accessToken, process.env.JWT_SECRET);
@@ -127,8 +127,8 @@ exports.deleteProfile = async (req, res) => {
             html: getDeleteAccountMessage()
           }); */
 
-        res.json({ message: 'Profile deleted successfully' });
+        res.json({ message: 'Profile deleted successfully.' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting profile', error });
+        res.status(500).json({ message: 'Error deleting profile.', error });
     }
 };
