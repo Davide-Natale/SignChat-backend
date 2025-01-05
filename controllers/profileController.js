@@ -7,6 +7,7 @@ const { blacklistToken, isTokenBlacklisted } = require('../utils/blacklistUtils'
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const dayjs = require('dayjs');
+const fs = require('fs');
 
 exports.getProfile = async (req, res) => {
     const userId = req.user.id;
@@ -108,6 +109,16 @@ exports.deleteProfile = async (req, res) => {
         //  Save user email before deletion to send email confirmation
         const email = user.email;
 
+        //  Delete profile image if exists
+        if(user.imageProfile) {
+            const imageFileName = user.imageProfile.split('/uploads')[1];
+            const imageFilePath = '../uploads' + imageFileName;
+
+            if(fs.existsSync(imageFilePath)) {
+                fs.unlinkSync(imageFilePath);
+            }
+        } 
+
         //  Delete user from database
         await user.destroy();
 
@@ -119,16 +130,79 @@ exports.deleteProfile = async (req, res) => {
         await blacklistToken(accessToken, accessTokenTTL);
         await blacklistToken(refreshToken, refreshTokenTTL);
 
-        /*  TODO: uncomment on production
+        
         //  Send confirmation email for profile delation
         sendEmail({
             to: email, 
             subject: 'Account Deletion Confirmation',
             html: getDeleteAccountMessage()
-          }); */
+          });
 
         res.json({ message: 'Profile deleted successfully.' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting profile.', error });
+    }
+};
+
+exports.uploadProfileImage = async (req, res) => {
+    const userId = req.user.id;
+
+    if(!req.file) {
+        return res.status(400).json({ message: 'No file uploaded.' });
+    }
+
+    const imagePath = req.file.path;
+
+    try {
+        //  Search user in the database
+        const user = await User.findByPk(userId);
+        if(!user) return res.status(404).json({ message: 'User not found.' });
+
+        //  Delete old profile image, if exists
+        if(user.imageProfile) {
+            const imageFileName = user.imageProfile.split('/uploads')[1];
+            const imageFilePath = '../uploads' + imageFileName;
+
+            if(fs.existsSync(imageFilePath)) {
+                fs.unlinkSync(imageFilePath);
+            }
+        }
+
+        //  Update user
+        await user.update({ imageProfile: imagePath });
+
+        res.json({ message: 'Profile image uploaded successfully.'});
+    } catch (error) {
+        res.status(500).json({ message: 'Error uploading profile image.', error });
+    }
+};
+
+exports.deleteProfileImage = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        //  Search user in the database
+        const user = await User.findByPk(userId);
+        if(!user) return res.status(404).json({ message: 'User not found.' });
+
+        //  Check if user has a profile image
+        if(!user.imageProfile) {
+            return res.status(400).json({ message: 'No profile image to delete.' });
+        }
+
+        //  Delete profile image file
+        const imageFileName = user.imageProfile.split('/uploads')[1];
+        const imageFilePath = '../uploads' + imageFileName;
+
+        if(fs.existsSync(imageFilePath)) {
+            fs.unlinkSync(imageFilePath);
+        }
+
+        //  Update user
+        await user.update({ imageProfile: null });
+
+        res.json({ message: 'Profile image deleted successfully.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Errod deleting profile image.' });
     }
 };

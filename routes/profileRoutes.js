@@ -2,8 +2,9 @@
 
 const express = require('express');
 const { check } = require('express-validator');
-const { getProfile, updateProfile, deleteProfile } = require('../controllers/profileController');
+const { getProfile, updateProfile, deleteProfile, uploadProfileImage, deleteProfileImage } = require('../controllers/profileController');
 const authenticate = require('../middlewares/authMiddleware')
+const upload = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
 
@@ -51,5 +52,9 @@ router.delete('/profile', authenticate, [
         .notEmpty()
         .withMessage("RefreshToken parameter cannot be an empty string")
 ], deleteProfile);
+
+router.post('/profile/image', authenticate, upload.single('image'), uploadProfileImage);
+
+router.delete('/profile/image', authenticate, deleteProfileImage);
 
 module.exports = router;

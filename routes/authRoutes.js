@@ -141,7 +141,7 @@ router.post('/logout', authenticate, [
         .withMessage("RefreshToken parameter cannot be an empty string")
 ], logout);
 
-router.post('/verify', authenticate, (_, res) => {
+router.post('/verify', authenticate, (_req, res) => {
     res.json({ message: "User is authenticated" })
 });
     
