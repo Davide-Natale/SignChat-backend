@@ -8,6 +8,7 @@ const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const dayjs = require('dayjs');
 const fs = require('fs');
+const path = require('path');
 
 exports.getProfile = async (req, res) => {
     const userId = req.user.id;
@@ -111,8 +112,8 @@ exports.deleteProfile = async (req, res) => {
 
         //  Delete profile image if exists
         if(user.imageProfile) {
-            const imageFileName = user.imageProfile.split('/uploads')[1];
-            const imageFilePath = '../uploads' + imageFileName;
+            const imageFileName = user.imageProfile.split('/uploads/')[1];
+            const imageFilePath = path.join(__dirname, '..', 'uploads', imageFileName);
 
             if(fs.existsSync(imageFilePath)) {
                 fs.unlinkSync(imageFilePath);
@@ -152,6 +153,8 @@ exports.uploadProfileImage = async (req, res) => {
     }
 
     const imagePath = req.file.path;
+    const imageUrl = `http://192.168.178.183:${process.env.PORT}` + '/uploads/' +
+        imagePath.split(path.sep + 'uploads' + path.sep)[1];
 
     try {
         //  Search user in the database
@@ -160,8 +163,8 @@ exports.uploadProfileImage = async (req, res) => {
 
         //  Delete old profile image, if exists
         if(user.imageProfile) {
-            const imageFileName = user.imageProfile.split('/uploads')[1];
-            const imageFilePath = '../uploads' + imageFileName;
+            const imageFileName = user.imageProfile.split('/uploads/')[1];
+            const imageFilePath = path.join(__dirname, '..', 'uploads', imageFileName);
 
             if(fs.existsSync(imageFilePath)) {
                 fs.unlinkSync(imageFilePath);
@@ -169,7 +172,7 @@ exports.uploadProfileImage = async (req, res) => {
         }
 
         //  Update user
-        await user.update({ imageProfile: imagePath });
+        await user.update({ imageProfile: imageUrl });
 
         res.json({ message: 'Profile image uploaded successfully.'});
     } catch (error) {
@@ -191,8 +194,8 @@ exports.deleteProfileImage = async (req, res) => {
         }
 
         //  Delete profile image file
-        const imageFileName = user.imageProfile.split('/uploads')[1];
-        const imageFilePath = '../uploads' + imageFileName;
+        const imageFileName = user.imageProfile.split('/uploads/')[1];
+        const imageFilePath = path.join(__dirname, '..', 'uploads', imageFileName);
 
         if(fs.existsSync(imageFilePath)) {
             fs.unlinkSync(imageFilePath);
@@ -203,6 +206,6 @@ exports.deleteProfileImage = async (req, res) => {
 
         res.json({ message: 'Profile image deleted successfully.' });
     } catch (error) {
-        res.status(500).json({ message: 'Errod deleting profile image.' });
+        res.status(500).json({ message: 'Error deleting profile image.', error });
     }
 };
