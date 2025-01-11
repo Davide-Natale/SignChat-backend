@@ -121,11 +121,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxN
 ###
 
 POST http://localhost:3000/api/contacts
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjMwOTM0LCJleHAiOjE3MzY2MzI3MzR9.Q055YeDfVF9rloYhtVSZELDGwr5inaUEshxx1qbAsk8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjM1NjE3LCJleHAiOjE3MzY2Mzc0MTd9.ifT8DIP-fj023-So6ha5zaHisXBMi0LphmbcUAb7dsM
 Content-Type: application/json
 
 {
-    "id": "550e8400-e29b-41d4-a716-44665544000D",
+    "id": "550e8400-e29b-41d4-a716-44665544000E",
     "firstName": "Davide",
     "lastName": "Natale",
     "phone": "3457604304"
@@ -134,7 +134,7 @@ Content-Type: application/json
 ###
 
 PUT http://localhost:3000/api/contacts/550e8400-e29b-41d4-a716-446655440005
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjMzOTAxLCJleHAiOjE3MzY2MzU3MDF9.SGZkoufK5jSnqSjajahNHUs1h4N0QWBQ55UlSlfc_8c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjM1NjE3LCJleHAiOjE3MzY2Mzc0MTd9.ifT8DIP-fj023-So6ha5zaHisXBMi0LphmbcUAb7dsM
 Content-Type: application/json
 
 {

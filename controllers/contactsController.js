@@ -80,7 +80,7 @@ exports.createContact = async (req, res) => {
         const newContact = await Contact.create({ 
             id, 
             firstName, 
-            lastName: lastName || null, 
+            lastName,
             phone,
             ownerId: userId,
             userId: contactUser? contactUser.id : null
@@ -137,7 +137,7 @@ exports.updateContact = async (req, res) => {
 
         await contact.update({ 
             firstName,
-            lastName: lastName || null,
+            lastName,
             phone,
             userId: contactUser? contactUser.id : null
         })
@@ -187,3 +187,71 @@ exports.deleteContact = async (req, res) => {
 exports.syncContacts = async (req, res) => {
     /**TODO: implement it */
 };
+
+/*
+const syncContacts = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { userId, newContacts, updatedContacts, deletedContacts } = req.body;
+
+    // Validate that the arrays are provided and in the correct format
+    if (!Array.isArray(newContacts) || !Array.isArray(updatedContacts) || !Array.isArray(deletedContacts)) {
+        return res.status(400).json({ error: 'newContacts, updatedContacts, and deletedContacts must be arrays' });
+    }
+
+    const transaction = await sequelize.transaction(); // Start a transaction
+
+    try {
+        // Handle new contacts (create new ones)
+        for (let contact of newContacts) {
+            const { id, firstName, lastName, phone } = contact;
+            await Contact.create(
+                { id, firstName, lastName, phone, ownerId: userId },
+                { transaction } // Pass the transaction to each operation
+            );
+        }
+
+        // Handle updated contacts (update existing ones)
+        for (let contact of updatedContacts) {
+            const { id, firstName, lastName, phone } = contact;
+            const existingContact = await Contact.findOne({
+                where: { id, ownerId: userId },
+                transaction // Pass the transaction here
+            });
+
+            if (existingContact) {
+                existingContact.firstName = firstName;
+                existingContact.lastName = lastName;
+                existingContact.phone = phone;
+                await existingContact.save({ transaction });
+            } else {
+                return res.status(404).json({ error: `Contact with ID ${id} not found for user ${userId}` });
+            }
+        }
+
+        // Handle deleted contacts (delete them from the database)
+        const deletedContactIds = deletedContacts.map(contact => contact.id);
+        await Contact.destroy({
+            where: {
+                ownerId: userId,
+                id: { [Op.in]: deletedContactIds }
+            },
+            transaction // Pass the transaction here
+        });
+
+        // If everything goes well, commit the transaction
+        await transaction.commit();
+
+        return res.status(200).json({ message: 'Contacts synchronized successfully' });
+    } catch (error) {
+        console.error(error);
+
+        // In case of error, rollback the transaction to avoid partial updates
+        await transaction.rollback();
+
+        return res.status(500).json({ error: 'An error occurred while syncing contacts' });
+    }
+};*/
