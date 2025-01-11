@@ -25,14 +25,15 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING
   },
   phone: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    unique: true
   },
   imageProfile: {
     type: DataTypes.STRING
   }
 },
   {
-    timestamps: false,
+    timestamps: false
   }
 );
 

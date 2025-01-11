@@ -4,6 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
 const sequelize = require('./config/database');
+require('./models/associations'); 
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const redisClient = require('./config/redisClient');
