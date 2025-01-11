@@ -43,7 +43,7 @@ exports.updateProfile = async (req, res) => {
     try {
         //  Search user in the database
         const user = await User.findByPk(userId);
-        if(!user) res.status(404).json({ message: 'User not found.' });
+        if(!user) return res.status(404).json({ message: 'User not found.' });
 
         //  Check if email is already used
         const checkEmail = await User.findOne({
@@ -53,7 +53,7 @@ exports.updateProfile = async (req, res) => {
             }
         });
 
-        if(checkEmail) return res.status(409).json({ message: 'Email already exists.' });
+        if(checkEmail) return res.status(409).json({ message: 'Email already used.' });
 
         //  Check if phone number is already used
         const checkPhone = await User.findOne({
@@ -63,7 +63,7 @@ exports.updateProfile = async (req, res) => {
             }
         });
 
-        if(checkPhone) return res.status(409).json({ message: 'Phone number already exists.' });
+        if(checkPhone) return res.status(409).json({ message: 'Phone number already used.' });
 
         await user.update({ firstName, lastName, email, phone });
 

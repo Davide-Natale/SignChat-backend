@@ -1,21 +1,21 @@
 'use strict';
 
 const express = require('express');
-const { check } = require('express-validator');
+const { body } = require('express-validator');
 const { register, login, refreshToken, changePassword, sendOtp, resetPassword, verifyOtp, logout } = require('../controllers/authController');
 const authenticate = require('../middlewares/authMiddleware')
 
 const router = express.Router();
 
 router.post('/register', [
-    check('email')
+    body('email')
         .exists()
         .withMessage('Email parameter is required')
         .isString()
         .withMessage('Email parameter must be a string')
         .isEmail()
         .withMessage('Email parameter is not an email'),
-    check('password')
+    body('password')
         .exists()
         .withMessage('Password parameter is required')
         .isString()
@@ -33,14 +33,14 @@ router.post('/register', [
 ], register);
 
 router.post('/login', [
-    check('email')
+    body('email')
         .exists()
         .withMessage('Email parameter is required')
         .isString()
         .withMessage('Email parameter must be a string')
         .isEmail()
         .withMessage('Email parameter is not an email'),
-    check('password')
+    body('password')
         .exists()
         .withMessage('Password parameter is required')
         .isString()
@@ -50,7 +50,7 @@ router.post('/login', [
 ], login);
 
 router.post('/refresh-token', [
-    check('refreshToken')
+    body('refreshToken')
         .exists()
         .withMessage('RefreshToken parameter is required')
         .isString()
@@ -60,14 +60,14 @@ router.post('/refresh-token', [
 ], refreshToken);
 
 router.post('/change-password', authenticate, [
-    check('oldPassword')
+    body('oldPassword')
         .exists()
         .withMessage('OldPassword parameter parameter is required')
         .isString()
         .withMessage('OldPassword parameter parameter must be a string')
         .notEmpty()
         .withMessage("OldPassword parameter parameter cannot be an empty string"),
-    check('newPassword')
+    body('newPassword')
         .exists()
         .withMessage('NewPassword parameter is required')
         .isString()
@@ -85,7 +85,7 @@ router.post('/change-password', authenticate, [
 ], changePassword);
 
 router.post('/reset-password/request', [
-    check('email')
+    body('email')
         .exists()
         .withMessage('Email parameter is required')
         .isString()
@@ -95,14 +95,14 @@ router.post('/reset-password/request', [
 ], sendOtp);
 
 router.post('/reset-password/verify-otp', [
-    check('email')
+    body('email')
         .exists()
         .withMessage('Email parameter is required')
         .isString()
         .withMessage('Email parameter must be a string')
         .isEmail()
         .withMessage('Email parameter parameter is not an email'),
-    check('otp')
+    body('otp')
         .exists()
         .withMessage('Otp parameter is required')
         .isString()
@@ -114,7 +114,7 @@ router.post('/reset-password/verify-otp', [
 ], verifyOtp);
 
 router.post('/reset-password/confirm', authenticate, [
-    check('newPassword')
+    body('newPassword')
         .exists()
         .withMessage('NewPassword parameter is required')
         .isString()
@@ -132,7 +132,7 @@ router.post('/reset-password/confirm', authenticate, [
 ], resetPassword);
 
 router.post('/logout', authenticate, [
-    check('refreshToken')
+    body('refreshToken')
         .exists()
         .withMessage('RefreshToken parameter is required')
         .isString()

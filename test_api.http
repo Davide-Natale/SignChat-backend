@@ -2,7 +2,7 @@ POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-    "email": "daxnatale@gmail.com",
+    "email": "test1@gmail.com",
     "password": "Aa0?aaaa"
 }
 
@@ -12,8 +12,8 @@ POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "daxnatale@gmail.com",
-    "password": "Aa!9ooop"
+    "email": "test1@gmail.com",
+    "password": "Aa0?aaaa"
 }
 
 ###
@@ -101,11 +101,49 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNzMzNzgyODE3LCJleHAiOjE3MzM3ODQ2MTd9.2pvYADKNRmHt73llfV-hBt75TPIzAtVGlvDkcVBr1sM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiaWF0IjoxNzM2NjI3ODUwLCJleHAiOjE3MzY2Mjk2NTB9.6IzjbXT3Jya0NCnN_GEvUssEzSdfI2fAMScrgxOWwTM
 Content-Type: application/json
 
 {
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNzMzNzgyODE3LCJleHAiOjE3MzYzNzQ4MTd9.idScFFR5wRhrPqnhxdC-EYsYNDKPUPLS7H0EnwDQ6SY"
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiaWF0IjoxNzM2NjI3ODUwLCJleHAiOjE3MzkyMTk4NTB9.La024tz_fDkjdOTofKijrfkr5-uTMiBgxT8mA7cMUjs"
 }
 
 ###
+
+GET http://localhost:3000/api/contacts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjMwOTM0LCJleHAiOjE3MzY2MzI3MzR9.Q055YeDfVF9rloYhtVSZELDGwr5inaUEshxx1qbAsk8
+
+###
+
+GET http://localhost:3000/api/contacts/550e8400-e29b-41d4-a716-446655440005
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjMzOTAxLCJleHAiOjE3MzY2MzU3MDF9.SGZkoufK5jSnqSjajahNHUs1h4N0QWBQ55UlSlfc_8c
+
+###
+
+POST http://localhost:3000/api/contacts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjMwOTM0LCJleHAiOjE3MzY2MzI3MzR9.Q055YeDfVF9rloYhtVSZELDGwr5inaUEshxx1qbAsk8
+Content-Type: application/json
+
+{
+    "id": "550e8400-e29b-41d4-a716-44665544000D",
+    "firstName": "Davide",
+    "lastName": "Natale",
+    "phone": "3457604304"
+}
+
+###
+
+PUT http://localhost:3000/api/contacts/550e8400-e29b-41d4-a716-446655440005
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjMzOTAxLCJleHAiOjE3MzY2MzU3MDF9.SGZkoufK5jSnqSjajahNHUs1h4N0QWBQ55UlSlfc_8c
+Content-Type: application/json
+
+{
+    "firstName": "Valentina",
+    "lastName": "Innocente",
+    "phone": "1234567890"
+}
+
+###
+
+DELETE http://localhost:3000/api/contacts/550e8400-e29b-41d4-a716-44665544000D
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjMwOTM0LCJleHAiOjE3MzY2MzI3MzR9.Q055YeDfVF9rloYhtVSZELDGwr5inaUEshxx1qbAsk8

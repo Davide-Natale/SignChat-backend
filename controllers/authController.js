@@ -210,8 +210,7 @@ exports.verifyOtp = async(req, res) => {
 
     //  Search user in the database
     const user = await User.findOne({ where: { email } });
-    if(!user)
-      return res.status(404).json({ message: 'User not found.' });
+    if(!user) return res.status(404).json({ message: 'User not found.' });
 
     //  Generate a temporary access token with a short expiry time (5 minutes)
     const token = generateTokens(user, { generateBoth: false, accessExpiry: '5m' });

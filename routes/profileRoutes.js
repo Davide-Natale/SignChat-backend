@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const { check } = require('express-validator');
+const { body } = require('express-validator');
 const { getProfile, updateProfile, deleteProfile, uploadProfileImage, deleteProfileImage } = require('../controllers/profileController');
 const authenticate = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware');
@@ -11,28 +11,28 @@ const router = express.Router();
 router.get('/profile', authenticate, getProfile);
 
 router.put('/profile', authenticate, [
-    check('firstName')
+    body('firstName')
         .exists()
         .withMessage('FirstName parameter is required')
         .isString()
         .withMessage('FirstName parameter must be a string')
         .notEmpty()
         .withMessage('FirstName parameter cannot be an empty string'),
-    check('lastName')
+    body('lastName')
         .exists()
         .withMessage('LastName parameter is required')
         .isString()
         .withMessage('LastName parameter must be a string')
         .notEmpty()
         .withMessage('LastName parameter cannot be an empty string'),
-    check('email')
+    body('email')
         .exists()
         .withMessage('Email parameter is required')
         .isString()
         .withMessage('Email parameter must be a string')
         .isEmail()
         .withMessage('Email parameter parameter is not an email'),
-    check('phone')
+    body('phone')
         .exists()
         .withMessage('Phone parameter is required')
         .isString()
@@ -44,7 +44,7 @@ router.put('/profile', authenticate, [
 ], updateProfile);
 
 router.delete('/profile', authenticate, [
-    check('refreshToken')
+    body('refreshToken')
         .exists()
         .withMessage('RefreshToken parameter is required')
         .isString()
