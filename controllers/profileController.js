@@ -1,6 +1,6 @@
 'use strict';
 
-const { Sequelize, where } = require('sequelize');
+const { Sequelize } = require('sequelize');
 const User = require('../models/user');
 const { sendEmail, getDeleteAccountMessage } = require('../utils/emailUtils');
 const { blacklistToken, isTokenBlacklisted } = require('../utils/blacklistUtils');
@@ -10,7 +10,6 @@ const jwt = require('jsonwebtoken');
 const dayjs = require('dayjs');
 const fs = require('fs');
 const path = require('path');
-const { use } = require('../routes/profileRoutes');
 const Contact = require('../models/contact');
 
 exports.getProfile = async (req, res) => {
