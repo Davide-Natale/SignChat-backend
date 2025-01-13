@@ -147,3 +147,41 @@ Content-Type: application/json
 
 DELETE http://localhost:3000/api/contacts/550e8400-e29b-41d4-a716-44665544000D
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NjMwOTM0LCJleHAiOjE3MzY2MzI3MzR9.Q055YeDfVF9rloYhtVSZELDGwr5inaUEshxx1qbAsk8
+
+###
+
+POST http://localhost:3000/api/contacts/sync
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2NzU5NzIxLCJleHAiOjE3MzY3NjE1MjF9.SsziyxPp6C2Dw-JS7QWWDan37nqpCY7Z7tLqXlYhXZg
+Content-Type: application/json
+
+{
+    "newContacts": [
+        {
+            "id": "550e8400-e29b-41d4-a716-44665544000E",
+            "firstName": "Davide",
+            "lastName": "Natale",
+            "phone": "+393457604304"
+        },
+        {
+            "id": "550e8400-e29b-41d4-a716-44665544000F",
+            "firstName": "Valentina",
+            "lastName": "Innocente",
+            "phone": "123456789"
+        }
+    ],
+    "updatedContacts": [
+        {
+            "id": "550e8400-e29b-41d4-a716-44665544000A",
+            "firstName": "Maria",
+            "lastName": "Innocente",
+            "phone": "+0987654321"
+        },
+        {
+            "id": "550e8400-e29b-41d4-a716-44665544000D",
+            "firstName": "Berardo",
+            "lastName": "Innocente",
+            "phone": "+12345"
+        }
+    ],
+    "deletedContacts": ["550e8400-e29b-41d4-a716-44665544000C", "550e8400-e29b-41d4-a716-44665544000B"]
+}

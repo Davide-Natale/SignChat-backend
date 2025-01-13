@@ -1,14 +1,17 @@
 'use strict';
 
-const { Sequelize } = require('sequelize');
+const { Sequelize, where } = require('sequelize');
 const User = require('../models/user');
 const { sendEmail, getDeleteAccountMessage } = require('../utils/emailUtils');
 const { blacklistToken, isTokenBlacklisted } = require('../utils/blacklistUtils');
 const { validationResult } = require('express-validator');
+const sequelize = require("../config/database");
 const jwt = require('jsonwebtoken');
 const dayjs = require('dayjs');
 const fs = require('fs');
 const path = require('path');
+const { use } = require('../routes/profileRoutes');
+const Contact = require('../models/contact');
 
 exports.getProfile = async (req, res) => {
     const userId = req.user.id;
@@ -40,32 +43,73 @@ exports.updateProfile = async (req, res) => {
     const userId = req.user.id;
     const { firstName, lastName, email, phone } = req.body;
 
+    //  Start a new transaction
+    const transaction = await sequelize.transaction();
+
     try {
         //  Search user in the database
-        const user = await User.findByPk(userId);
-        if(!user) return res.status(404).json({ message: 'User not found.' });
+        const user = await User.findByPk(userId, { transaction });
+        if(!user) {
+            await transaction.rollback();
+            return res.status(404).json({ message: 'User not found.' });
+        }
 
-        //  Check if email is already used
-        const checkEmail = await User.findOne({
-            where: {
-                email,
-                id: { [Sequelize.Op.ne]: userId }
+        const oldPhone = user.phone;
+        const isPhoneChanged = phone !== user.phone;
+        const isEmailChanged = email !== user.email
+
+        if (isEmailChanged) {
+            //  Check if email is already used
+            const checkEmail = await User.findOne({
+                where: {
+                    email,
+                    id: { [Sequelize.Op.ne]: userId }
+                }, 
+                transaction
+            });
+
+            if(checkEmail) {
+                await transaction.rollback();
+                return res.status(409).json({ message: 'Email already used.' }); 
             }
-        });
+        }
 
-        if(checkEmail) return res.status(409).json({ message: 'Email already used.' });
+        if (isPhoneChanged) {
+            //  Check if phone number is already used
+            const checkPhone = await User.findOne({
+                where: {
+                    phone,
+                    id: { [Sequelize.Op.ne]: userId }
+                },
+                transaction
+            });
 
-        //  Check if phone number is already used
-        const checkPhone = await User.findOne({
-            where: {
-                phone,
-                id: { [Sequelize.Op.ne]: userId }
+            if(checkPhone) {
+                await transaction.rollback();
+                return res.status(409).json({ message: 'Phone number already used.' });
             }
-        });
+        }   
 
-        if(checkPhone) return res.status(409).json({ message: 'Phone number already used.' });
+        await user.update({ firstName, lastName, email, phone }, { transaction });
 
-        await user.update({ firstName, lastName, email, phone });
+        if(isPhoneChanged) {
+            if(oldPhone) {
+                //  Update contacts associated to old phone number
+                await Contact.update(
+                    { userId: null },
+                    { where: { phone: oldPhone }, transaction }
+                );
+            }
+            
+            //  Update contacts associated to new phone number
+            await Contact.update(
+                { userId },
+                { where: { phone }, transaction }
+            );
+        }
+
+        //  Commit transaction
+        await transaction.commit();
 
         res.json({
             message: 'Profile updated successfully.',
@@ -79,6 +123,8 @@ exports.updateProfile = async (req, res) => {
             }
         });
     } catch (error) {
+        //  Rollback transaction in case of error
+        await transaction.rollback();
         res.status(500).json({ message: 'Error updating profile.', error });
     }
 };

@@ -2,6 +2,7 @@ const { Sequelize } = require("sequelize");
 const Contact = require("../models/contact");
 const User = require("../models/user");
 const { validationResult } = require('express-validator');
+const sequelize = require("../config/database");
 
 exports.getContacts = async (req, res) => {
     const userId = req.user.id
@@ -15,7 +16,11 @@ exports.getContacts = async (req, res) => {
                 model: User,
                 attributes: ['id', 'imageProfile'],
                 as: 'user'
-            }
+            },
+            order:[
+                ['lastName', 'ASC'],
+                ['firstName', 'ASC']
+            ]
         });
 
         res.json({ contacts });
@@ -120,26 +125,31 @@ exports.updateContact = async (req, res) => {
             return res.status(404).json({ message: 'Contact not found.' });
         }
 
-        //  Check if user has already a contact associated to phone
-        const checkPhone = await Contact.findOne({
-            where: {
-                phone,
-                ownerId: userId,
-                id: { [Sequelize.Op.ne]: contactId }
+        let contactUserId = contact.userId;
+
+        if(phone !== contact.phone) {
+            //  Check if user has already a contact associated to phone
+            const checkPhone = await Contact.findOne({
+                where: {
+                    phone,
+                    ownerId: userId,
+                    id: { [Sequelize.Op.ne]: contactId }
+                }
+            });
+
+            if(checkPhone) {
+                return res.status(409).json({ message: 'A contact with this phone number already exists.' });
             }
-        });
 
-        if(checkPhone) {
-            return res.status(409).json({ message: 'A contact with this phone number already exists.' });
+            const contactUser = await User.findOne({ where: { phone } });
+            contactUserId = contactUser? contactUser.id : null;
         }
-
-        const contactUser = await User.findOne({ where: { phone } });
 
         await contact.update({ 
             firstName,
             lastName,
             phone,
-            userId: contactUser? contactUser.id : null
+            userId: contactUserId
         })
 
         res.json({
@@ -185,73 +195,109 @@ exports.deleteContact = async (req, res) => {
 };
 
 exports.syncContacts = async (req, res) => {
-    /**TODO: implement it */
-};
-
-/*
-const syncContacts = async (req, res) => {
+    //  Check validation results
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+    if (!errors.isEmpty())
+        return res.status(422).json({ errors: errors.array() });
 
-    const { userId, newContacts, updatedContacts, deletedContacts } = req.body;
+    const userId = req.user.id;
+    const { newContacts, updatedContacts, deletedContacts } = req.body;
 
-    // Validate that the arrays are provided and in the correct format
-    if (!Array.isArray(newContacts) || !Array.isArray(updatedContacts) || !Array.isArray(deletedContacts)) {
-        return res.status(400).json({ error: 'newContacts, updatedContacts, and deletedContacts must be arrays' });
-    }
-
-    const transaction = await sequelize.transaction(); // Start a transaction
+    //  Start a new transaction
+    const transaction = await sequelize.transaction();
 
     try {
-        // Handle new contacts (create new ones)
-        for (let contact of newContacts) {
-            const { id, firstName, lastName, phone } = contact;
-            await Contact.create(
-                { id, firstName, lastName, phone, ownerId: userId },
-                { transaction } // Pass the transaction to each operation
-            );
-        }
+        //  Handle new contacts
+        for(let newContact of newContacts) {
+            const { id, firstName, lastName, phone } = newContact;
 
-        // Handle updated contacts (update existing ones)
-        for (let contact of updatedContacts) {
-            const { id, firstName, lastName, phone } = contact;
-            const existingContact = await Contact.findOne({
-                where: { id, ownerId: userId },
-                transaction // Pass the transaction here
+            //  Check if contact already exists
+            const contact = await Contact.findOne({
+                where: { phone, ownerId: userId },
+                transaction
             });
 
-            if (existingContact) {
-                existingContact.firstName = firstName;
-                existingContact.lastName = lastName;
-                existingContact.phone = phone;
-                await existingContact.save({ transaction });
-            } else {
-                return res.status(404).json({ error: `Contact with ID ${id} not found for user ${userId}` });
+            if(contact) {
+                await transaction.rollback();
+                return res.status(409).json({ message: 'Contact already exists.' });
             }
+
+            const contactUser = await User.findOne({ where: { phone }, transaction });
+
+            //  Add new contact to database
+            await Contact.create({ 
+                id, 
+                firstName, 
+                lastName,
+                phone,
+                ownerId: userId,
+                userId: contactUser? contactUser.id : null
+            }, { transaction }); 
         }
 
-        // Handle deleted contacts (delete them from the database)
-        const deletedContactIds = deletedContacts.map(contact => contact.id);
-        await Contact.destroy({
-            where: {
-                ownerId: userId,
-                id: { [Op.in]: deletedContactIds }
-            },
-            transaction // Pass the transaction here
-        });
+        //  Handle updated contacts
+        for (let updatedContact of updatedContacts) {
+            const { id, firstName, lastName, phone } = updatedContact;
 
-        // If everything goes well, commit the transaction
+            //  Search contact in the database
+            const contact = await Contact.findOne({
+                where: { id, ownerId: userId },
+                transaction
+            });
+
+            if (!contact) {
+                await transaction.rollback();
+                return res.status(404).json({ message: 'Contact not found.' });
+            }
+
+            let contactUserId = contact.userId;
+
+            if (phone !== contact.phone) {
+                //  Check if user has already a contact associated to phone
+                const checkPhone = await Contact.findOne({
+                    where: {
+                        phone,
+                        ownerId: userId,
+                        id: { [Sequelize.Op.ne]: id }
+                    },
+                    transaction
+                });
+
+                if (checkPhone) {
+                    await transaction.rollback();
+                    return res.status(409).json({ message: 'A contact with this phone number already exists.' });
+                }
+
+                const contactUser = await User.findOne({ where: { phone }, transaction });
+                contactUserId = contactUser ? contactUser.id : null;
+            }
+
+            await contact.update({
+                firstName,
+                lastName,
+                phone,
+                userId: contactUserId
+            }, { transaction });
+        }
+
+        //  Handle deleted contacts
+        if(deletedContacts.length > 0) {
+            await Contact.destroy({
+                where: {
+                    id: { [Sequelize.Op.in]: deletedContacts },
+                    ownerId: userId
+                }, 
+                transaction
+            });
+        }
+
+        //  Commit transaction
         await transaction.commit();
 
-        return res.status(200).json({ message: 'Contacts synchronized successfully' });
+        res.json({ message: 'Contacts synchronized successfully.' });
     } catch (error) {
-        console.error(error);
-
-        // In case of error, rollback the transaction to avoid partial updates
+        //  Rollback transaction in case of error
         await transaction.rollback();
-
-        return res.status(500).json({ error: 'An error occurred while syncing contacts' });
+        res.status(500).json({ message: 'Error synchronizing contacts.', error });        
     }
-};*/
+};
