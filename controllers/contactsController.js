@@ -18,8 +18,8 @@ exports.getContacts = async (req, res) => {
                 as: 'user'
             },
             order:[
-                ['lastName', 'ASC'],
-                ['firstName', 'ASC']
+                ['firstName', 'ASC'],
+                ['lastName', 'ASC']
             ]
         });
 

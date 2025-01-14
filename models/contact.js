@@ -21,7 +21,7 @@ const Contact = sequelize.define('Contact', {
     },
     ownerId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        primaryKey: true,
         references: {
             model: 'Users',
             key: 'id'
