@@ -70,10 +70,10 @@ exports.createContact = async (req, res) => {
     const userId = req.user.id;
     const { id, firstName, lastName, phone } = req.body;
 
-    try {
-        //  Start a new transaction
-        const transaction = await sequelize.transaction();
+    //  Start a new transaction
+    const transaction = await sequelize.transaction();
 
+    try {
         //  Check if contact already exists
         const contact = await Contact.findOne({
             where: { phone, ownerId: userId },
@@ -135,10 +135,10 @@ exports.updateContact = async (req, res) => {
     const contactId = req.params.id;
     const { firstName, lastName, phone } = req.body;
 
-    try {
-        //  Start a new transaction
-        const transaction = await sequelize.transaction();
+    //  Start a new transaction
+    const transaction = await sequelize.transaction();
 
+    try {
         //  Search contact in the database
         const contact = await Contact.findOne({
             where: { id: contactId, ownerId: userId },
@@ -228,10 +228,10 @@ exports.deleteContact = async (req, res) => {
     const userId = req.user.id;
     const contactId = req.params.id;
 
-    try {
-        //  Start a new transaction
-        const transaction = await sequelize.transaction();
+    //  Start a new transaction
+    const transaction = await sequelize.transaction();
 
+    try {
         //  Search contact in the database
         const contact = await Contact.findOne({
             where: { id: contactId, ownerId: userId }, 
@@ -275,10 +275,10 @@ exports.syncContacts = async (req, res) => {
     const userId = req.user.id;
     const { newContacts, updatedContacts, deletedContacts } = req.body;
 
-    try {
-        //  Start a new transaction
-        const transaction = await sequelize.transaction();
+    //  Start a new transaction
+    const transaction = await sequelize.transaction();
 
+    try {
         //  Handle new contacts
         for(let newContact of newContacts) {
             const { id, firstName, lastName, phone } = newContact;

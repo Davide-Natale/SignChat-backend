@@ -43,10 +43,10 @@ exports.updateProfile = async (req, res) => {
     const userId = req.user.id;
     const { firstName, lastName, email, phone } = req.body;
 
-    try {
-        //  Start a new transaction
-        const transaction = await sequelize.transaction();
+    //  Start a new transaction
+    const transaction = await sequelize.transaction();
 
+    try {
         //  Search user in the database
         const user = await User.findByPk(userId, { transaction });
         if(!user) {

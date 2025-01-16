@@ -88,14 +88,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxN
 ###
 
 PUT http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNzM3MDIyNzgwLCJleHAiOjE3MzcwMjQ1ODB9.XZ4qEQe_r-LpVzOpGwLly7CyUMIc9KR9qsFv0b1Mcs8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3MDY0ODk3LCJleHAiOjE3MzcwNjY2OTd9.b9MSz0MWsSuWhwS8o6AjAu63xzd8z_aRsVNQVM03zlA
 Content-Type: application/json
 
 {
-    "firstName": "Vincenzo",
-    "lastName": "Siciliano",
+    "firstName": "Davide",
+    "lastName": "Natale",
     "email": "test1@gmail.com",
-    "phone": "01234"
+    "phone": "31102000"
 }
 
 ###
@@ -151,27 +151,56 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxN
 ###
 
 POST http://localhost:3000/api/contacts/sync
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM3MDI0NjgzLCJleHAiOjE3MzcwMjY0ODN9.-nWXcphRSfFOlX7Xyw5SF9AWrflE-Ba4rubgNayv_bc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM3MDY1OTc0LCJleHAiOjE3MzcwNjc3NzR9.ktrIYKaxO719BNEMU_lvSMWyIxXT63HmdwTWBFwt9uc
 Content-Type: application/json
 
 {
     "newContacts": [
         {
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "firstName": "Davide",
+            "lastName": null,
+            "phone": "31102000"
+        },
+        {
             "id": "550e8400-e29b-41d4-a716-446655440001",
             "firstName": "Catarinella",
             "lastName": null,
-            "phone": "13072000"
-        }
-    ],
-    "updatedContacts": [
+            "phone": "13072003"
+        },
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440002",
+            "firstName": "Ida",
+            "lastName": null,
+            "phone": "01021973"
+        },{
+            "id": "550e8400-e29b-41d4-a716-446655440003",
+            "firstName": "Guido",
+            "lastName": null,
+            "phone": "09061969"
+        },
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440004",
+            "firstName": "Marianna Francia",
+            "lastName": null,
+            "phone": "12071995"
+        },
         {
             "id": "550e8400-e29b-41d4-a716-446655440005",
             "firstName": "Berardo",
             "lastName": null,
             "phone": "24111967"
+        },
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440006",
+            "firstName": "Giovanni",
+            "lastName": "Tuoto",
+            "phone": "12102000"
         }
+
     ],
-    "deletedContacts": ["550e8400-e29b-41d4-a716-446655440007"]
+    "updatedContacts": [],
+    "deletedContacts": []
 }
 
 ###
