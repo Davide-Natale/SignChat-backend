@@ -11,6 +11,7 @@ const dayjs = require('dayjs');
 const fs = require('fs');
 const path = require('path');
 const Contact = require('../models/contact');
+const Call = require('../models/call');
 
 exports.getProfile = async (req, res) => {
     const userId = req.user.id;
@@ -42,10 +43,10 @@ exports.updateProfile = async (req, res) => {
     const userId = req.user.id;
     const { firstName, lastName, email, phone } = req.body;
 
-    //  Start a new transaction
-    const transaction = await sequelize.transaction();
-
     try {
+        //  Start a new transaction
+        const transaction = await sequelize.transaction();
+
         //  Search user in the database
         const user = await User.findByPk(userId, { transaction });
         if(!user) {
@@ -98,10 +99,22 @@ exports.updateProfile = async (req, res) => {
                     { userId: null },
                     { where: { phone: oldPhone }, transaction }
                 );
+
+                //  Update call associated to old phone number
+                await Call.update(
+                    { userId: null },
+                    { where: { phone: oldPhone }, transaction }
+                );
             }
             
             //  Update contacts associated to new phone number
             await Contact.update(
+                { userId },
+                { where: { phone }, transaction }
+            );
+
+            //  Update call associated to new phone number
+            await Call.update(
                 { userId },
                 { where: { phone }, transaction }
             );

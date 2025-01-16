@@ -8,6 +8,7 @@ require('./models/associations');
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const contactsRoutes = require('./routes/contacstRoutes');
+const callsRoutes = require('./routes/callsRoutes');
 const redisClient = require('./config/redisClient');
 
 // Init express
@@ -23,6 +24,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', authRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', contactsRoutes);
+app.use('/api', callsRoutes);
 
 (async () => {
   try {

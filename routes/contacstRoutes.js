@@ -79,8 +79,6 @@ router.delete('/contacts/:id', authenticate, [
         .withMessage('Invalid id.')
 ], deleteContact);
 
-//  TODO: implement and test it
-
 router.post('/contacts/sync', authenticate, [
     body('newContacts')
         .exists()
@@ -114,9 +112,9 @@ router.post('/contacts/sync', authenticate, [
         .withMessage('New contact phone field must contain only numeric characters.'),
     body('updatedContacts')
         .exists()
-        .withMessage('UpdatedContacts parameter is required.')
+        .withMessage('Updated Contacts parameter is required.')
         .isArray()
-        .withMessage('UpdatedContacts parameter must be an array.'),
+        .withMessage('Updated Contacts parameter must be an array.'),
     body('updatedContacts.*.id')
         .isUUID()
         .withMessage('Each updated contact must contain a valid UUID.'),
@@ -144,12 +142,12 @@ router.post('/contacts/sync', authenticate, [
         .withMessage('Updated contact phone field must contain only numeric characters.'),
     body('deletedContacts')
         .exists()
-        .withMessage('DeletedContacts parameter is required.')
+        .withMessage('Deleted Contacts parameter is required.')
         .isArray()
-        .withMessage('DeletedContacts parameter must be an array.'),
+        .withMessage('Delete Contacts parameter must be an array.'),
     body('deletedContacts.*')
         .isUUID()
-        .withMessage('DeletedContacts must contain only valid UUID.')
+        .withMessage('Deleted Contacts must contain only valid UUID.')
 ], syncContacts);
 
 module.exports = router;
