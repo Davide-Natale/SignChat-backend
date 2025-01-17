@@ -25,7 +25,7 @@ exports.getCalls = async (req, res) => {
         //  Search calls in the database
         const calls = await Call.findAll({
             where: whereClause,
-            attributes: ['id', 'phone', 'type', 'date', 'duration'],
+            attributes: ['id', 'phone', 'type', 'status', 'date', 'duration'],
             include: [
                 {
                     model: Contact,
