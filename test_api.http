@@ -2,7 +2,7 @@ POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-    "email": "test8@gmail.com",
+    "email": "test9@gmail.com",
     "password": "Aa0?aaaa"
 }
 
@@ -12,7 +12,7 @@ POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "test2@gmail.com",
+    "email": "daxnatale@gmail.com",
     "password": "Aa0?aaaa"
 }
 
@@ -88,14 +88,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxN
 ###
 
 PUT http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3MDY0ODk3LCJleHAiOjE3MzcwNjY2OTd9.b9MSz0MWsSuWhwS8o6AjAu63xzd8z_aRsVNQVM03zlA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNzM3Mjg0Njg2LCJleHAiOjE3MzcyODY0ODZ9.u-8DWeZaKmzIENVLaYotcCxOaS4M6RutUcL8yF0uwJI
 Content-Type: application/json
 
 {
-    "firstName": "Davide",
-    "lastName": "Natale",
-    "email": "test1@gmail.com",
-    "phone": "31102000"
+    "firstName": "Lorenzo",
+    "lastName": "Lenti",
+    "email": "test9@gmail.com",
+    "phone": "3333"
 }
 
 ###
@@ -151,53 +151,29 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxN
 ###
 
 POST http://localhost:3000/api/contacts/sync
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM3MDY1OTc0LCJleHAiOjE3MzcwNjc3NzR9.ktrIYKaxO719BNEMU_lvSMWyIxXT63HmdwTWBFwt9uc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM3MjQ5NjkwLCJleHAiOjE3MzcyNTE0OTB9.Of_SLqZNLuUKtfTgmd3HB4FJw7L7YI1ugCYBrShzhZk
 Content-Type: application/json
 
 {
     "newContacts": [
         {
-            "id": "550e8400-e29b-41d4-a716-446655440000",
-            "firstName": "Davide",
-            "lastName": null,
-            "phone": "31102000"
+            "id": "550e8400-e29b-41d4-a716-446655440007",
+            "firstName": "Anna",
+            "lastName": "Sannuti",
+            "phone": "1111"
         },
         {
-            "id": "550e8400-e29b-41d4-a716-446655440001",
-            "firstName": "Catarinella",
+            "id": "550e8400-e29b-41d4-a716-446655440008",
+            "firstName": "Luana",
             "lastName": null,
-            "phone": "13072003"
+            "phone": "2222"
         },
         {
-            "id": "550e8400-e29b-41d4-a716-446655440002",
-            "firstName": "Ida",
-            "lastName": null,
-            "phone": "01021973"
-        },{
-            "id": "550e8400-e29b-41d4-a716-446655440003",
-            "firstName": "Guido",
-            "lastName": null,
-            "phone": "09061969"
-        },
-        {
-            "id": "550e8400-e29b-41d4-a716-446655440004",
-            "firstName": "Marianna Francia",
-            "lastName": null,
-            "phone": "12071995"
-        },
-        {
-            "id": "550e8400-e29b-41d4-a716-446655440005",
-            "firstName": "Berardo",
-            "lastName": null,
-            "phone": "24111967"
-        },
-        {
-            "id": "550e8400-e29b-41d4-a716-446655440006",
-            "firstName": "Giovanni",
-            "lastName": "Tuoto",
-            "phone": "12102000"
+            "id": "550e8400-e29b-41d4-a716-446655440009",
+            "firstName": "Lorenzo",
+            "lastName": "Lenti",
+            "phone": "3333"
         }
-
     ],
     "updatedContacts": [],
     "deletedContacts": []
@@ -207,6 +183,11 @@ Content-Type: application/json
 
 GET http://localhost:3000/api/calls
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM3MDIyNDYxLCJleHAiOjE3MzcwMjQyNjF9.PcJWnT3SEx74ZZpFfbsxnsrSf48Xb_JcQ5X92d2tRnQ
+
+###
+
+GET http://localhost:3000/api/calls/15
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3Mjk2Nzg2LCJleHAiOjE3MzcyOTg1ODZ9.lZDioAePfdZcIJY5D215hHK5Ei8ejMu-UlJc_9te52Y
 
 ###
 

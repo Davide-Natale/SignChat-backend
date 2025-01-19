@@ -1,8 +1,8 @@
 'use strict';
 
 const express = require('express');
-const { body, query } = require('express-validator');
-const { getCalls, deleteCalls } = require('../controllers/callsController');
+const { body, query, param } = require('express-validator');
+const { getCalls, getCall, deleteCalls } = require('../controllers/callsController');
 const authenticate = require('../middlewares/authMiddleware');
 
 const router = express.Router();
@@ -21,6 +21,12 @@ router.get('/calls', authenticate, [
         .isInt({ min: 1 })
         .withMessage('Limit parameter must be a positive number.')
 ], getCalls);
+
+router.get('/calls/:id', authenticate, [
+    param('id')
+        .isInt({ min: 1 })
+        .withMessage('Id parameter must be a positive number.')
+], getCall);
 
 router.delete('/calls/', authenticate, [
     body('ids')
