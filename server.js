@@ -7,6 +7,7 @@ const sequelize = require('./config/database');
 require('./models/associations'); 
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const usersRoutes = require('./routes/usersRoutes');
 const contactsRoutes = require('./routes/contacstRoutes');
 const callsRoutes = require('./routes/callsRoutes');
 const redisClient = require('./config/redisClient');
@@ -23,6 +24,7 @@ app.use('/uploads', express.static('uploads'));
 //  Set-up routes
 app.use('/api/auth', authRoutes);
 app.use('/api', profileRoutes);
+app.use('/api', usersRoutes);
 app.use('/api', contactsRoutes);
 app.use('/api', callsRoutes);
 

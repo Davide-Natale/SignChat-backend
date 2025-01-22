@@ -110,6 +110,11 @@ Content-Type: application/json
 
 ###
 
+GET http://localhost:3000/api/users/90
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3NTUzMTUwLCJleHAiOjE3Mzc1NTQ5NTB9.AbtEZ-36hkG1h4XPoP6JmypKLOCG_uM7GXNsthjq0PM
+
+###
+
 GET http://localhost:3000/api/contacts
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM2ODUwMjMyLCJleHAiOjE3MzY4NTIwMzJ9.7ha-hXiC2J05GwyEMUgLqzltE6WnXUrZwJqE3PAe9Wo
 
