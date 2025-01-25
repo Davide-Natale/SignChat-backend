@@ -11,16 +11,16 @@ router.get('/contacts', authenticate, getContacts);
 
 router.get('/contacts/:id', authenticate, [
     param('id')
-        .isUUID()
-        .withMessage('Invalid id.')
+        .isInt({ min: 1 })
+        .withMessage('Id parameter must be a positive number.')
 ], getContact);
 
 router.post('/contacts', authenticate, [
     body('id')
         .exists()
         .withMessage('Id parameter is required.')
-        .isUUID()
-        .withMessage('Invalid id.'),
+        .isInt({ min: 1 })
+        .withMessage('Id parameter must be a positive number.'),
     body('firstName')
         .exists()
         .withMessage('FirstName parameter is required.')
@@ -47,8 +47,8 @@ router.post('/contacts', authenticate, [
 
 router.put('/contacts/:id', authenticate, [
     param('id')
-        .isUUID()
-        .withMessage('Invalid id.'),
+        .isInt({ min: 1 })
+        .withMessage('Id parameter must be a positive number.'),
     body('firstName')
         .exists()
         .withMessage('FirstName parameter is required.')
@@ -75,8 +75,8 @@ router.put('/contacts/:id', authenticate, [
 
 router.delete('/contacts/:id', authenticate, [
     param('id')
-        .isUUID()
-        .withMessage('Invalid id.')
+        .isInt({ min: 1 })
+        .withMessage('Id parameter must be a positive number.')
 ], deleteContact);
 
 router.post('/contacts/sync', authenticate, [
@@ -86,8 +86,8 @@ router.post('/contacts/sync', authenticate, [
         .isArray()
         .withMessage('NewContacts parameter must be an array.'),
     body('newContacts.*.id')
-        .isUUID()
-        .withMessage('Each new contact must contain a valid UUID.'),
+        .isInt({ min: 1 })
+        .withMessage('Each new contact must contain a numeric id.'),
     body('newContacts.*.firstName')
         .exists()
         .withMessage('Each new contact must contain a firstName field.')
@@ -116,8 +116,8 @@ router.post('/contacts/sync', authenticate, [
         .isArray()
         .withMessage('Updated Contacts parameter must be an array.'),
     body('updatedContacts.*.id')
-        .isUUID()
-        .withMessage('Each updated contact must contain a valid UUID.'),
+        .isInt({ min: 1 })
+        .withMessage('Each updated contact must contain a numeric id.'),
     body('updatedContacts.*.firstName')
         .exists()
         .withMessage('Each updated contact must contain a firstName field.')
@@ -146,8 +146,8 @@ router.post('/contacts/sync', authenticate, [
         .isArray()
         .withMessage('Delete Contacts parameter must be an array.'),
     body('deletedContacts.*')
-        .isUUID()
-        .withMessage('Deleted Contacts must contain only valid UUID.')
+        .isInt({ min: 1 })
+        .withMessage('Deleted Contacts must contain only numeric ids.')
 ], syncContacts);
 
 module.exports = router;

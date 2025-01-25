@@ -10,8 +10,8 @@ const router = express.Router();
 router.get('/calls', authenticate, [
     query('contactId')
         .optional()
-        .isUUID()
-        .withMessage('ContactId parameter must be a valid UUID.'),
+        .isInt({ min: 1 })
+        .withMessage('ContactId parameter must be a positive numeric id.'),
     query('userId')
         .optional()
         .isInt({ min: 1 })
