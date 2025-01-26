@@ -68,7 +68,7 @@ exports.createContact = async (req, res) => {
         return res.status(422).json({ errors: errors.array() });
 
     const userId = req.user.id;
-    const { id, firstName, lastName, phone } = req.body;
+    const { firstName, lastName, phone } = req.body;
 
     //  Start a new transaction
     const transaction = await sequelize.transaction();
@@ -88,8 +88,7 @@ exports.createContact = async (req, res) => {
         const contactUser = await User.findOne({ where: { phone }, transaction });
 
         //  Add new contact to database
-        const newContact = await Contact.create({ 
-            id, 
+        const newContact = await Contact.create({
             firstName, 
             lastName,
             phone,
@@ -99,7 +98,7 @@ exports.createContact = async (req, res) => {
 
         //  Update calls associated to new contact
         await Call.update(
-            { contactId: id, contactOwnerId: userId },
+            { contactId: newContact.id },
             { 
                 where: { phone, ownerId: userId }, 
                 transaction 
@@ -183,7 +182,7 @@ exports.updateContact = async (req, res) => {
         if(isPhoneChanged) {
             //  Update calls associated to old phone number
             await Call.update(
-                { contactId: null, contactOwnerId: null },
+                { contactId: null },
                 { 
                     where: { phone: oldPhone, ownerId: userId }, 
                     transaction 
@@ -192,7 +191,7 @@ exports.updateContact = async (req, res) => {
 
             //  Update calls associated to new phone number
             await Call.update(
-                { contactId, contactOwnerId: userId },
+                { contactId },
                 { 
                     where: { phone, ownerId: userId }, 
                     transaction
@@ -228,40 +227,21 @@ exports.deleteContact = async (req, res) => {
     const userId = req.user.id;
     const contactId = req.params.id;
 
-    //  Start a new transaction
-    const transaction = await sequelize.transaction();
-
     try {
         //  Search contact in the database
         const contact = await Contact.findOne({
-            where: { id: contactId, ownerId: userId }, 
-            transaction
+            where: { id: contactId, ownerId: userId }
         });
 
         if(!contact) {
-            await transaction.rollback();
             return res.status(404).json({ message: 'Contact not found.' });
         }
 
         //  Delete contact from database
-        await contact.destroy({ transaction });
-
-        //  Update calls associated to deleted contact
-        await Call.update(
-            { contactId: null, contactOwnerId: null },
-            {
-                where: { ownerId: userId, contactId, contactOwnerId: userId },
-                transaction
-            }
-        );
-
-        //  Commit transaction
-        await transaction.commit();
+        await contact.destroy();
 
         res.json({ message: 'Contact deleted successfully.' });
     } catch (error) {
-        //  Rollback transaction in case of error
-        await transaction.rollback();
         res.status(500).json({ message: 'Error deleting contact.', error });
     }
 };
@@ -281,7 +261,7 @@ exports.syncContacts = async (req, res) => {
     try {
         //  Handle new contacts
         for(let newContact of newContacts) {
-            const { id, firstName, lastName, phone } = newContact;
+            const { firstName, lastName, phone } = newContact;
 
             //  Check if contact already exists
             const contact = await Contact.findOne({
@@ -297,8 +277,7 @@ exports.syncContacts = async (req, res) => {
             const contactUser = await User.findOne({ where: { phone }, transaction });
 
             //  Add new contact to database
-            await Contact.create({ 
-                id, 
+            const createdContact = await Contact.create({
                 firstName, 
                 lastName,
                 phone,
@@ -308,7 +287,7 @@ exports.syncContacts = async (req, res) => {
 
             //  Udpdate calls associated to new contact
             await Call.update(
-                { contactId: id, contactOwnerId: userId },
+                { contactId: createdContact.id },
                 { 
                     where: { phone, ownerId: userId }, 
                     transaction 
@@ -318,11 +297,11 @@ exports.syncContacts = async (req, res) => {
 
         //  Handle updated contacts
         for (let updatedContact of updatedContacts) {
-            const { id, firstName, lastName, phone } = updatedContact;
+            const { firstName, lastName, phone } = updatedContact;
 
             //  Search contact in the database
             const contact = await Contact.findOne({
-                where: { id, ownerId: userId },
+                where: { phone, ownerId: userId },
                 transaction
             });
 
@@ -331,80 +310,21 @@ exports.syncContacts = async (req, res) => {
                 return res.status(404).json({ message: 'Contact not found.' });
             }
 
-            const oldPhone = contact.phone;
-            const isPhoneChanged = phone !== contact.phone;
-            let contactUserId = contact.userId;
-
-            if (isPhoneChanged) {
-                //  Check if user has already a contact associated to phone
-                const checkPhone = await Contact.findOne({
-                    where: {
-                        phone,
-                        ownerId: userId,
-                        id: { [Sequelize.Op.ne]: id }
-                    },
-                    transaction
-                });
-
-                if (checkPhone) {
-                    await transaction.rollback();
-                    return res.status(409).json({ message: 'A contact with this phone number already exists.' });
-                }
-
-                const contactUser = await User.findOne({ where: { phone }, transaction });
-                contactUserId = contactUser ? contactUser.id : null;
-            }
-
             await contact.update({
                 firstName,
-                lastName,
-                phone,
-                userId: contactUserId
+                lastName
             }, { transaction });
-
-            if (isPhoneChanged) {
-                //  Update calls associated to old phone number
-                await Call.update(
-                    { contactId: null, contactOwnerId: null },
-                    {
-                        where: { phone: oldPhone, ownerId: userId },
-                        transaction
-                    }
-                );
-
-                //  Update calls associated to new phone number
-                await Call.update(
-                    { contactId: id, contactOwnerId: userId },
-                    {
-                        where: { phone, ownerId: userId },
-                        transaction
-                    }
-                );
-            }
         }
 
         //  Handle deleted contacts
         if(deletedContacts.length > 0) {
             await Contact.destroy({
                 where: {
-                    id: { [Sequelize.Op.in]: deletedContacts },
+                    phone: { [Sequelize.Op.in]: deletedContacts },
                     ownerId: userId
                 }, 
                 transaction
             });
-
-            //  Update calls associated to deleted contacts
-            await Call.update(
-                { contactId: null, contactOwnerId: null },
-                {
-                    where: { 
-                        contactId: { [Sequelize.Op.in]: deletedContacts },
-                        ownerId: userId,
-                        contactOwnerId: userId
-                    },
-                    transaction
-                }
-            );
         }
 
         //  Commit transaction

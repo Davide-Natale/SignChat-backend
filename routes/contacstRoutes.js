@@ -16,11 +16,6 @@ router.get('/contacts/:id', authenticate, [
 ], getContact);
 
 router.post('/contacts', authenticate, [
-    body('id')
-        .exists()
-        .withMessage('Id parameter is required.')
-        .isInt({ min: 1 })
-        .withMessage('Id parameter must be a positive number.'),
     body('firstName')
         .exists()
         .withMessage('FirstName parameter is required.')
@@ -85,9 +80,6 @@ router.post('/contacts/sync', authenticate, [
         .withMessage('NewContacts parameter is required.')
         .isArray()
         .withMessage('NewContacts parameter must be an array.'),
-    body('newContacts.*.id')
-        .isInt({ min: 1 })
-        .withMessage('Each new contact must contain a numeric id.'),
     body('newContacts.*.firstName')
         .exists()
         .withMessage('Each new contact must contain a firstName field.')
@@ -115,9 +107,6 @@ router.post('/contacts/sync', authenticate, [
         .withMessage('Updated Contacts parameter is required.')
         .isArray()
         .withMessage('Updated Contacts parameter must be an array.'),
-    body('updatedContacts.*.id')
-        .isInt({ min: 1 })
-        .withMessage('Each updated contact must contain a numeric id.'),
     body('updatedContacts.*.firstName')
         .exists()
         .withMessage('Each updated contact must contain a firstName field.')
@@ -146,8 +135,12 @@ router.post('/contacts/sync', authenticate, [
         .isArray()
         .withMessage('Delete Contacts parameter must be an array.'),
     body('deletedContacts.*')
-        .isInt({ min: 1 })
-        .withMessage('Deleted Contacts must contain only numeric ids.')
+        .isString()
+        .withMessage('Deleted Contacts must contain only string.')
+        .notEmpty()
+        .withMessage('Deleted Contacts cannot contain empty string.')
+        .isNumeric()
+        .withMessage('Deleted Contacts must contain only numeric string.')
 ], syncContacts);
 
 module.exports = router;

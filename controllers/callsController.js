@@ -35,8 +35,6 @@ exports.getCalls = async (req, res) => {
                         attributes: ['id', 'imageProfile'],
                         as: 'user'  
                     },
-                    where: { ownerId: userId },
-                    required: false,
                     as: 'contact'
                 },
                 {
@@ -80,8 +78,6 @@ exports.getCall = async (req, res) => {
                         attributes: ['id', 'imageProfile'],
                         as: 'user'  
                     },
-                    where: { ownerId: userId },
-                    required: false,
                     as: 'contact'
                 },
                 {

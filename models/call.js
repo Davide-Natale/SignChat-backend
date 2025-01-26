@@ -37,6 +37,22 @@ const Call = sequelize.define('Call', {
     duration: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    contactId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: 'Contacts',
+            key: 'id'
+        },
+        onDelete: 'SET NULL'
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: 'Users',
+            key: 'id'
+        },
+        onDelete: 'SET NULL'
     }
 }, {
         timestamps: false

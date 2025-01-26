@@ -2,7 +2,7 @@ POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-    "email": "test9@gmail.com",
+    "email": "test3@gmail.com",
     "password": "Aa0?aaaa"
 }
 
@@ -88,14 +88,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxN
 ###
 
 PUT http://localhost:3000/api/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiaWF0IjoxNzM3Mjg0Njg2LCJleHAiOjE3MzcyODY0ODZ9.u-8DWeZaKmzIENVLaYotcCxOaS4M6RutUcL8yF0uwJI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiaWF0IjoxNzM3OTIzNTQ2LCJleHAiOjE3Mzc5MjUzNDZ9.G7cwYaClOonJ8XgXPZkBlYA7Xp2tjWAuAA6bg4TrHQg
 Content-Type: application/json
 
 {
-    "firstName": "Lorenzo",
-    "lastName": "Lenti",
-    "email": "test9@gmail.com",
-    "phone": "3333"
+    "firstName": "Vincenzo",
+    "lastName": "Siciliano",
+    "email": "test3@gmail.com",
+    "phone": "3935883468"
 }
 
 ###
@@ -116,68 +116,54 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxN
 ###
 
 GET http://localhost:3000/api/contacts
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM2ODUwMjMyLCJleHAiOjE3MzY4NTIwMzJ9.7ha-hXiC2J05GwyEMUgLqzltE6WnXUrZwJqE3PAe9Wo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM3OTIyMTIxLCJleHAiOjE3Mzc5MjM5MjF9.n0d-j4Vu4qe-CRpDB6GoMinYbym1zbHSVwt2xDt2QBk
 
 ###
 
-GET http://localhost:3000/api/contacts/550e8400-e29b-41d4-a716-446655440004
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM2ODQ2NzU1LCJleHAiOjE3MzY4NDg1NTV9.U5R5A1cAkSAqhllhS3davQHyVNo64jE-C6RohDmjj54
+GET http://localhost:3000/api/contacts/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM3OTIyMTIxLCJleHAiOjE3Mzc5MjM5MjF9.n0d-j4Vu4qe-CRpDB6GoMinYbym1zbHSVwt2xDt2QBk
 
 ###
 
 POST http://localhost:3000/api/contacts
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3MDIzNTA2LCJleHAiOjE3MzcwMjUzMDZ9.Kc2M4d2ZDvsBH66wCITOy5t4wOrX0jC24aLfPfhLjdA
-Content-Type: application/json
-
-{
-    "id": "550e8400-e29b-41d4-a716-446655440006",
-    "firstName": "Giò🎃",
-    "lastName": null,
-    "phone": "12102000"
-}
-
-###
-
-PUT http://localhost:3000/api/contacts/550e8400-e29b-41d4-a716-446655440006
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3MDIzNTA2LCJleHAiOjE3MzcwMjUzMDZ9.Kc2M4d2ZDvsBH66wCITOy5t4wOrX0jC24aLfPfhLjdA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3OTIxNzM0LCJleHAiOjE3Mzc5MjM1MzR9.RMdXwoyTmJxh4c1cZxD_I5PNAS5dGhwVK0F1zSC37Bc
 Content-Type: application/json
 
 {
     "firstName": "Zio Berardo",
     "lastName": null,
-    "phone": "24111967"
+    "phone": "3394326360"
 }
 
 ###
 
-DELETE http://localhost:3000/api/contacts/550e8400-e29b-41d4-a716-446655440006
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3MDIzNTA2LCJleHAiOjE3MzcwMjUzMDZ9.Kc2M4d2ZDvsBH66wCITOy5t4wOrX0jC24aLfPfhLjdA
+PUT http://localhost:3000/api/contacts/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3OTIxNzM0LCJleHAiOjE3Mzc5MjM1MzR9.RMdXwoyTmJxh4c1cZxD_I5PNAS5dGhwVK0F1zSC37Bc
+Content-Type: application/json
+
+{
+    "firstName": "Mamma",
+    "lastName": null,
+    "phone": "3331509013"
+}
+
+###
+
+DELETE http://localhost:3000/api/contacts/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3OTIxNzM0LCJleHAiOjE3Mzc5MjM1MzR9.RMdXwoyTmJxh4c1cZxD_I5PNAS5dGhwVK0F1zSC37Bc
 
 ###
 
 POST http://localhost:3000/api/contacts/sync
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM3MjQ5NjkwLCJleHAiOjE3MzcyNTE0OTB9.Of_SLqZNLuUKtfTgmd3HB4FJw7L7YI1ugCYBrShzhZk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3OTIzNjc2LCJleHAiOjE3Mzc5MjU0NzZ9.YQswrPyOmx-6aonUpq30hQ1CJwPDWnSDJr690erA88U
 Content-Type: application/json
 
 {
     "newContacts": [
         {
-            "id": "550e8400-e29b-41d4-a716-446655440007",
-            "firstName": "Anna",
-            "lastName": "Sannuti",
-            "phone": "1111"
-        },
-        {
-            "id": "550e8400-e29b-41d4-a716-446655440008",
-            "firstName": "Luana",
+            "firstName": "Zio Berardo",
             "lastName": null,
-            "phone": "2222"
-        },
-        {
-            "id": "550e8400-e29b-41d4-a716-446655440009",
-            "firstName": "Lorenzo",
-            "lastName": "Lenti",
-            "phone": "3333"
+            "phone": "3394326360"
         }
     ],
     "updatedContacts": [],
@@ -186,20 +172,20 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:3000/api/calls
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM3MDIyNDYxLCJleHAiOjE3MzcwMjQyNjF9.PcJWnT3SEx74ZZpFfbsxnsrSf48Xb_JcQ5X92d2tRnQ
+GET http://localhost:3000/api/calls?userId=4&limit=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3OTIzNjc2LCJleHAiOjE3Mzc5MjU0NzZ9.YQswrPyOmx-6aonUpq30hQ1CJwPDWnSDJr690erA88U
 
 ###
 
-GET http://localhost:3000/api/calls/15
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3Mjk2Nzg2LCJleHAiOjE3MzcyOTg1ODZ9.lZDioAePfdZcIJY5D215hHK5Ei8ejMu-UlJc_9te52Y
+GET http://localhost:3000/api/calls/13
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3OTIzNjc2LCJleHAiOjE3Mzc5MjU0NzZ9.YQswrPyOmx-6aonUpq30hQ1CJwPDWnSDJr690erA88U
 
 ###
 
 DELETE http://localhost:3000/api/calls
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM2OTc3MzU5LCJleHAiOjE3MzY5NzkxNTl9.YtRgrT0YZvQSE9R4MQutO7EYMO7FOuM564AiAH7hWOc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM3OTIzNjc2LCJleHAiOjE3Mzc5MjU0NzZ9.YQswrPyOmx-6aonUpq30hQ1CJwPDWnSDJr690erA88U
 Content-Type: application/json
 
 {
-    "ids": [1]
+    "ids": [21]
 }

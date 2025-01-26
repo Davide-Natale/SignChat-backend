@@ -6,7 +6,8 @@ const sequelize = require('../config/database');
 const Contact = sequelize.define('Contact', {
     id: {
         type: DataTypes.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        autoIncrement: true
     },
     firstName: {
         type: DataTypes.STRING,
@@ -21,7 +22,6 @@ const Contact = sequelize.define('Contact', {
     },
     ownerId: {
         type: DataTypes.INTEGER,
-        primaryKey: true,
         references: {
             model: 'Users',
             key: 'id'
