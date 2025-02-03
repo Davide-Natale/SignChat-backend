@@ -2,6 +2,7 @@
 
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const morgan = require('morgan');
 const sequelize = require('./config/database');
 require('./models/associations'); 
@@ -11,9 +12,12 @@ const usersRoutes = require('./routes/usersRoutes');
 const contactsRoutes = require('./routes/contacstRoutes');
 const callsRoutes = require('./routes/callsRoutes');
 const redisClient = require('./config/redisClient');
+const mediasoup = require('./config/mediaSoup');
+const { initWebSocket } = require('./config/webSocket');
 
 // Init express
 const app = express();
+const server = http.createServer(app);
 const port = process.env.PORT
 
 //  Set-up middlewares
@@ -28,8 +32,14 @@ app.use('/api', usersRoutes);
 app.use('/api', contactsRoutes);
 app.use('/api', callsRoutes);
 
+//  Initialize WebSocket
+initWebSocket(server);
+
 (async () => {
   try {
+    //  Initialize MediaSoup
+    //await mediasoup.createWorker();
+
     //  Connect to Redis
     await redisClient.connect();
 
@@ -37,7 +47,7 @@ app.use('/api', callsRoutes);
     await sequelize.sync();
 
     // Activate server
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log(`Server running at http://localhost:${port}`);
     });
   } catch (error) {
