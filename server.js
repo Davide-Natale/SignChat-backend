@@ -11,6 +11,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const usersRoutes = require('./routes/usersRoutes');
 const contactsRoutes = require('./routes/contacstRoutes');
 const callsRoutes = require('./routes/callsRoutes');
+const tokensRoutes = require('./routes/tokensRoutes');
 const redisClient = require('./config/redisClient');
 const mediasoup = require('./config/mediaSoup');
 const { initWebSocket } = require('./config/webSocket');
@@ -31,6 +32,7 @@ app.use('/api', profileRoutes);
 app.use('/api', usersRoutes);
 app.use('/api', contactsRoutes);
 app.use('/api', callsRoutes);
+app.use('/api', tokensRoutes);
 
 //  Initialize WebSocket
 initWebSocket(server);

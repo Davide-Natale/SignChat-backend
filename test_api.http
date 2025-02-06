@@ -12,7 +12,7 @@ POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "daxnatale@gmail.com",
+    "email": "signchat.client1@gmail.com",
     "password": "Aa0?aaaa"
 }
 
@@ -188,4 +188,24 @@ Content-Type: application/json
 
 {
     "ids": [21]
+}
+
+###
+
+POST http://localhost:3000/api/tokens
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzM4ODgyNDc2LCJleHAiOjE3Mzg4ODQyNzZ9.e66bhyfamJxxb_m_0IykDttGW3EVAR4gTKUD6PaeFRM
+Content-Type: application/json
+
+{
+    "expoToken": "ExponentPushToken[1acsasw_21321ASJADSAcsa]"
+}
+
+###
+
+DELETE http://localhost:3000/api/tokens
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM4ODgyNDYyLCJleHAiOjE3Mzg4ODQyNjJ9.SWNn4jY8Hj_WTOw5l2tdJ8vcy68Efl4Z2edYCjAIROU
+Content-Type: application/json
+
+{
+    "expoToken": "ExponentPushToken[1234_abcd]"
 }

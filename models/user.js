@@ -31,10 +31,6 @@ const User = sequelize.define('User', {
   imageProfile: {
     type: DataTypes.STRING
   }
-},
-  {
-    timestamps: false
-  }
-);
+});
 
 module.exports = User;

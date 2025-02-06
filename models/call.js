@@ -54,9 +54,6 @@ const Call = sequelize.define('Call', {
         },
         onDelete: 'SET NULL'
     }
-}, {
-        timestamps: false
-    }
-);
+});
 
 module.exports = Call;

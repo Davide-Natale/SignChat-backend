@@ -22,6 +22,7 @@ const Contact = sequelize.define('Contact', {
     },
     ownerId: {
         type: DataTypes.INTEGER,
+        allowNull: false,
         references: {
             model: 'Users',
             key: 'id'
@@ -36,10 +37,6 @@ const Contact = sequelize.define('Contact', {
         },
         onDelete: 'SET NULL'
     }
-},
-    {
-        timestamps: false
-    }
-);
+});
 
 module.exports = Contact;
