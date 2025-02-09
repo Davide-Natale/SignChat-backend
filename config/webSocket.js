@@ -2,6 +2,8 @@
 
 const { Server } = require('socket.io');
 const authenticateSocket = require('../middlewares/socketAuthMiddleware');
+const Token = require('../models/token');
+const sendPushNotification = require('../utils/pushNotifications');
 //const mediasoup = require('./mediasoup');
 
 let io;
@@ -25,7 +27,23 @@ function initWebSocket(server) {
     socket.on('call-user', async ({ /*from,*/ to }) => {  //  TODO: test if from is really needed
       const targetUser = users.get(to);
 
-      if (!targetUser) {
+      const expoTokens = (await Token.findAll({ 
+        where: { ownerId: to },
+        attributes: ['expoToken'],
+        raw: true
+      })).map(t => t.expoToken);
+
+      if(expoTokens.length > 0) {
+        try {
+          await sendPushNotification(expoTokens, `${userId}`, 'Incoming call', { "type": "incoming call" });
+        } catch (error) {
+          //  TODO: add some control
+        }
+      } else {
+        //  TODO: send something to callerUser
+      }
+
+      /*if (!targetUser) {
         //  TODO: handle this case using push notification
         socket.emit('user-not-available');
         return;
@@ -36,12 +54,12 @@ function initWebSocket(server) {
         // user choose if to close current call and answer new one
         socket.emit('user-busy');
         return;
-      }
+      }*/
 
       users.set(userId, { socketId: socket.id, status: 'ringing' });
-      users.set(to, { ...targetUser, status: 'ringing' });
+      //users.set(to, { ...targetUser, status: 'ringing' });
 
-      io.to(targetUser.socketId).emit('incoming-call', { userId });
+      //io.to(targetUser.socketId).emit('incoming-call', { userId });
     });
 
     // Accept Video Call

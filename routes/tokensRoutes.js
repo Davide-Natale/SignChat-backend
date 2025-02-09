@@ -15,7 +15,7 @@ router.post('/tokens', authenticate, [
         .withMessage('ExpoToken parameter must be a string.')
         .notEmpty()
         .withMessage('ExpoToken parameter cannot be an empty string.')
-        .matches(/^ExponentPushToken\[[A-Za-z0-9_]+\]$/)
+        .matches(/^ExponentPushToken\[[^\]]+\]$/)
         .withMessage('Invalid token format.')
 ], createToken);
 
@@ -27,7 +27,7 @@ router.delete('/tokens', authenticate, [
         .withMessage('ExpoToken parameter must be a string.')
         .notEmpty()
         .withMessage('ExpoToken parameter cannot be an empty string.')
-        .matches(/^ExponentPushToken\[[A-Za-z0-9_]+\]$/)
+        .matches(/^ExponentPushToken\[[^\]]+\]$/)
         .withMessage('Invalid token format.')
 ], deleteToken);
 
