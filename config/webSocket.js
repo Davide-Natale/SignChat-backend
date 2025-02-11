@@ -35,7 +35,7 @@ function initWebSocket(server) {
 
       if(expoTokens.length > 0) {
         try {
-          await sendPushNotification(expoTokens, `${userId}`, 'Incoming call', { "type": "incoming call" });
+          await sendPushNotification(expoTokens, `${userId}`, 'Incoming call', { "type": "incoming-call" });
         } catch (error) {
           //  TODO: add some control
         }
