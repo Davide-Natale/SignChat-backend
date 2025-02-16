@@ -27,15 +27,15 @@ function initWebSocket(server) {
     socket.on('call-user', async ({ /*from,*/ to }) => {  //  TODO: test if from is really needed
       const targetUser = users.get(to);
 
-      const expoTokens = (await Token.findAll({ 
+      const fcmTokens = (await Token.findAll({ 
         where: { ownerId: to },
-        attributes: ['expoToken'],
+        attributes: ['fcmToken'],
         raw: true
-      })).map(t => t.expoToken);
+      })).map(t => t.fcmToken);
 
-      if(expoTokens.length > 0) {
+      if(fcmTokens.length > 0) {
         try {
-          await sendPushNotification(expoTokens, `${userId}`, 'Incoming call', { "type": "incoming-call" });
+          await sendPushNotification(fcmTokens, { data: { type: "incoming-call" } });
         } catch (error) {
           //  TODO: add some control
         }

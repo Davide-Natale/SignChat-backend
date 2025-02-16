@@ -1,31 +1,24 @@
 'use strict';
 
-const { Expo } = require('expo-server-sdk');
+const admin = require('firebase-admin');
+const serviceAccount = require('../service-account-key.json');
 
-//  Initialize Expo client
-const expo = new Expo();
+//  Initialize Firebase Admin
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
 
-const sendPushNotification = async (expoTokens, title , message, data) => {
-    const messages = [];
-
-    for(let expoToken of expoTokens) {
-        if(!Expo.isExpoPushToken(expoToken)) {
-            continue;
+const sendPushNotification = async (fcmTokens, { notification, data }) => {
+    const message = {
+        tokens: fcmTokens,
+        notification,
+        data,
+        android: {
+            priority: 'high'
         }
+    };
 
-        messages.push({
-            to: expoToken,
-            title,
-            body: message,
-            data
-        });
-    }
-
-    const chunks = expo.chunkPushNotifications(messages);
-
-    for(let chunk of chunks) {
-        await expo.sendPushNotificationsAsync(chunk);
-    }
+    await admin.messaging().sendEachForMulticast(message);
 };
 
 module.exports = sendPushNotification;

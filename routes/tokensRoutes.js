@@ -2,33 +2,53 @@
 
 const express = require('express');
 const { body } = require('express-validator');
-const { createToken, deleteToken } = require('../controllers/tokensController');
+const { createToken, deleteToken, syncToken } = require('../controllers/tokensController');
 const authenticate = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
 router.post('/tokens', authenticate, [
-    body('expoToken')
+    body('deviceId')
         .exists()
-        .withMessage('ExpoToken parameter is required.')
+        .withMessage('DeviceId parameter is required.')
         .isString()
-        .withMessage('ExpoToken parameter must be a string.')
+        .withMessage('DeviceId parameter must be a string.')
         .notEmpty()
-        .withMessage('ExpoToken parameter cannot be an empty string.')
-        .matches(/^ExponentPushToken\[[^\]]+\]$/)
-        .withMessage('Invalid token format.')
+        .withMessage('DeviceId parameter cannot be an empty string.'),
+    body('fcmToken')
+        .exists()
+        .withMessage('FCMToken parameter is required.')
+        .isString()
+        .withMessage('FCMToken parameter must be a string.')
+        .notEmpty()
+        .withMessage('FCMToken parameter cannot be an empty string.')
 ], createToken);
 
-router.delete('/tokens', authenticate, [
-    body('expoToken')
+router.post('/tokens/sync', authenticate, [
+    body('deviceId')
         .exists()
-        .withMessage('ExpoToken parameter is required.')
+        .withMessage('DeviceId parameter is required.')
         .isString()
-        .withMessage('ExpoToken parameter must be a string.')
+        .withMessage('DeviceId parameter must be a string.')
         .notEmpty()
-        .withMessage('ExpoToken parameter cannot be an empty string.')
-        .matches(/^ExponentPushToken\[[^\]]+\]$/)
-        .withMessage('Invalid token format.')
+        .withMessage('DeviceId parameter cannot be an empty string.'),
+    body('fcmToken')
+        .exists()
+        .withMessage('FCMToken parameter is required.')
+        .isString()
+        .withMessage('FCMToken parameter must be a string.')
+        .notEmpty()
+        .withMessage('FCMToken parameter cannot be an empty string.')
+], syncToken);
+
+router.delete('/tokens', authenticate, [
+    body('fcmToken')
+        .exists()
+        .withMessage('FCMToken parameter is required.')
+        .isString()
+        .withMessage('FCMToken parameter must be a string.')
+        .notEmpty()
+        .withMessage('FCMToken parameter cannot be an empty string.')
 ], deleteToken);
 
 module.exports = router;

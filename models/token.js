@@ -18,7 +18,12 @@ const Token = sequelize.define('Token', {
         },
         onDelete: 'CASCADE'
     },
-    expoToken: {
+    deviceId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    fcmToken: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
