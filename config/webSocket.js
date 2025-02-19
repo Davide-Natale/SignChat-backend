@@ -35,7 +35,16 @@ function initWebSocket(server) {
 
       if(fcmTokens.length > 0) {
         try {
-          await sendPushNotification(fcmTokens, { data: { type: "incoming-call" } });
+          await sendPushNotification(fcmTokens, {
+            /*notifee: JSON.stringify({
+              title: 'Davide',
+              body: 'Chiamata persa',
+              data: {
+                callId: '1'
+              }
+            })*/
+            type: "incoming-call" 
+          });
         } catch (error) {
           //  TODO: add some control
         }

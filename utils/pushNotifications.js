@@ -8,10 +8,9 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
 
-const sendPushNotification = async (fcmTokens, { notification, data }) => {
+const sendPushNotification = async (fcmTokens, data) => {
     const message = {
         tokens: fcmTokens,
-        notification,
         data,
         android: {
             priority: 'high'
