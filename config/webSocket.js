@@ -2,13 +2,11 @@
 
 const { Server } = require('socket.io');
 const authenticateSocket = require('../middlewares/socketAuthMiddleware');
-const Token = require('../models/token');
-const sendPushNotification = require('../utils/pushNotifications');
-//const mediasoup = require('./mediasoup');
 
 let io;
-const users = new Map();
+const activeUsers = new Map();
 
+//  TODO: remove logging when test completed
 function initWebSocket(server) {
   //  Create WebSocket instance
   io = new Server(server);
@@ -19,93 +17,62 @@ function initWebSocket(server) {
   //  Set up event handlers
   io.on('connection', (socket) => {
     const userId = socket.user.id;
+    
+    if(!activeUsers.has(userId)) {
+      //  Add user to active users if not exists
+      activeUsers.set(userId, {
+        status: 'available',
+        socketIds: [socket.id],
+        activeCalls: new Map()
+      });
+    } else {
+      //  Get user data from active users
+      const userData = activeUsers.get(userId);
+
+      //  Add new socketId to user
+      if(!userData.socketIds.includes(socket.id)) {
+        userData.socketIds.push(socket.id);
+      }
+      
+      activeUsers.set(userId, userData);
+    }
+
     console.log(`User connected: ${userId} (${socket.id})`);
+    console.log(activeUsers);
 
-    users.set(userId, { socketId: socket.id, status: 'available' });
+    const { onCallUser, onEndCall, onAnswerCall, onRejectCall } = require('../handlers/callHandlers')(io, activeUsers, socket);
 
-    // Start Video Call
-    socket.on('call-user', async ({ /*from,*/ to }) => {  //  TODO: test if from is really needed
-      const targetUser = users.get(to);
+    //  Start Video Call
+    socket.on('call-user', onCallUser);
 
-      const fcmTokens = (await Token.findAll({ 
-        where: { ownerId: to },
-        attributes: ['fcmToken'],
-        raw: true
-      })).map(t => t.fcmToken);
+    //  End Video Call
+    socket.on('end-call', onEndCall);
 
-      if(fcmTokens.length > 0) {
-        try {
-          await sendPushNotification(fcmTokens, {
-            /*notifee: JSON.stringify({
-              title: 'Davide',
-              body: 'Chiamata persa',
-              data: {
-                callId: '1'
-              }
-            })*/
-            type: "incoming-call" 
-          });
-        } catch (error) {
-          //  TODO: add some control
-        }
-      } else {
-        //  TODO: send something to callerUser
-      }
+    //  Answer Video Call
+    socket.on('answer-call', onAnswerCall);
 
-      /*if (!targetUser) {
-        //  TODO: handle this case using push notification
-        socket.emit('user-not-available');
-        return;
-      }
+    //  Reject Video Call
+    socket.on('reject-call', onRejectCall);
 
-      if (targetUser.status === 'busy') {
-        //  TODO: probably is better to use again push notification to let 
-        // user choose if to close current call and answer new one
-        socket.emit('user-busy');
-        return;
-      }*/
-
-      users.set(userId, { socketId: socket.id, status: 'ringing' });
-      //users.set(to, { ...targetUser, status: 'ringing' });
-
-      //io.to(targetUser.socketId).emit('incoming-call', { userId });
-    });
-
-    // Accept Video Call
-    socket.on('accept-call', async ({ from }) => {
-      const callerUser = users.get(from);
-
-      if(!callerUser) return;
-
-      users.set(userId, { socketId: socket.id, status: 'busy' });
-      users.set(from, { ...callerUser, status: 'busy' });
-
-      io.to(callerUser.socketId).emit('call-accepted');
-
-      //  TODO: uncomment when implement MediaSoup
-      //const transportCaller = await mediasoup.createTransport(callerSocketId);
-      //const transportReceiver = await mediasoup.createTransport(socket.id);
-
-      //io.to(callerUser.socketId).emit('transport-created', transportCaller);
-      //io.to(socket.id).emit('transport-created', transportReceiver);
-    });
-
-    // Reject Video Call
-    socket.on('reject-call', ({ from }) => {
-      const callerUser = users.get(from);
-
-      if(!callerUser) return;
-
-      users.set(userId, { socketId: socket.id, status: 'available' });
-      users.set(from, { ...callerUser, status: 'available' });
-
-      io.to(callerUser.socketId).emit('call-rejected');
-    });
-
-    // User Disconnection
+    //  User Disconnection
     socket.on('disconnect', () => {
-      users.delete(userId);
-      console.log(`Utente disconnected: ${userId}`);
+      if(activeUsers.has(userId)) {
+        const userData = activeUsers.get(userId);
+
+        //  Remove socketId from the active ones associated to userId
+        userData.socketIds = userData.socketIds.filter(socketId => socketId !== socket.id);
+
+        if(userData.socketIds.length === 0) {
+          //  Remove userId from active users if no more socketId are present
+          activeUsers.delete(userId);
+        } else {
+          //  Udpate socketIds list associated to userId instead
+          activeUsers.set(userId, userData);
+        }
+        
+        console.log(`Utente disconnected: ${userId}`);
+        console.log(activeUsers);
+      }
     });
   });
 }
