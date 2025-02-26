@@ -55,24 +55,22 @@ const endCall = async (callId, otherUserId, activeUsers, userId, io) => {;
                     attributes: ['id', 'imageProfile'],
                     as: 'user'
                 },
-                transaction,
-                raw: true
+                transaction
             });
 
             //  Read user data from database
             const userData = await User.findOne({
                 where: { id: userId },
                 attributes: ['id', 'firstName', 'lastName', 'phone', 'imageProfile'],
-                transaction,
-                raw: true
+                transaction
             });
 
             //  Read other user fcmTokens from database
             const fcmTokens = (await Token.findAll({
                 where: { ownerId: otherUserId },
                 attributes: ['fcmToken'],
-                raw: true,
-                transaction
+                transaction,
+                raw: true
             })).map(t => t.fcmToken);
 
             //  Update user status and corresponding active calls
@@ -82,8 +80,8 @@ const endCall = async (callId, otherUserId, activeUsers, userId, io) => {;
 
             //  Notify other user
             await sendPushNotification(fcmTokens, {
-                type: "incoming-call-handled",
-                callId: otherUserCallData.id
+                callId: otherUserCallData.id.toString(),
+                type: "incoming-call-handled" 
             });
 
             setTimeout(() => {

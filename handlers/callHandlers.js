@@ -59,8 +59,7 @@ module.exports = (io, activeUsers, socket) => {
             const callerUserContact = await Contact.findOne({
                 where: { ownerId: userId, userId: targetUserId },
                 attributes: ['id', 'phone'],
-                transaction,
-                raw: true
+                transaction
             });
 
             //  Create a new ongoing call for caller user
@@ -84,16 +83,14 @@ module.exports = (io, activeUsers, socket) => {
                     attributes: ['id', 'imageProfile'],
                     as: 'user'
                 },
-                transaction,
-                raw: true
+                transaction
             });
 
             //  Read caller user data from database
             const callerUserData = await User.findOne({
                 where: { id: userId },
                 attributes: ['id', 'firstName', 'lastName', 'phone', 'imageProfile'],
-                transaction,
-                raw: true
+                transaction
             });
 
             //  Create a new ongoing call for target user
@@ -119,7 +116,7 @@ module.exports = (io, activeUsers, socket) => {
                         callerUserCall.id,
                         targetUserCall.id, 
                         fcmTokens
-                    ), 10000    //  TODO: change with 30 seconds
+                    ), 15000    //  TODO: change with 30 seconds
                 )
             });
 
@@ -132,12 +129,12 @@ module.exports = (io, activeUsers, socket) => {
             });
 
             //  Notify targetUser of the incoming-call
-            /*await sendPushNotification(fcmTokens, {
+            await sendPushNotification(fcmTokens, {
                 type: "incoming-call",
-                callId: targetUserCall.id,
-                contact: targetUserContact,
-                user: !targetUserContact ? callerUserData : undefined
-            });*/
+                callId: targetUserCall.id.toString(),
+                contact: targetUserContact ? JSON.stringify(targetUserContact) : undefined,
+                user: !targetUserContact ? JSON.stringify(callerUserData) : undefined
+            });
             
             //  Commit transaction
             await transaction.commit();
@@ -179,7 +176,7 @@ module.exports = (io, activeUsers, socket) => {
             //  Notify both caller and target users
             /*await sendPushNotification(fcmTokens, {
                 type: "incoming-call-handled",
-                callId: targetUserCallId
+                callId: targetUserCallId.toString()
             });
 
             setTimeout(() => {
@@ -261,7 +258,7 @@ module.exports = (io, activeUsers, socket) => {
 
             //  Update target user status and add call to active calls
             targetUser.activeCalls.set(callerUserId, {
-                callId: parseInt(callId),
+                callId,
                 socketId: socket.id,
                 status: 'ongoing'
             });
@@ -277,8 +274,8 @@ module.exports = (io, activeUsers, socket) => {
             //  Notify both caller and target users
             if(fcmTokens > 0) {
                 await sendPushNotification(fcmTokens, {
-                    type: "incoming-call-handled",
-                    callId
+                    callId: callId.toString(),
+                    type: "incoming-call-handled" 
                 });
             }
 
@@ -335,24 +332,22 @@ module.exports = (io, activeUsers, socket) => {
                     attributes: ['id', 'imageProfile'],
                     as: 'user'
                 },
-                transaction,
-                raw: true
+                transaction
             });
 
             //  Read caller user data from database
             const callerUserData = await User.findOne({
                 where: { id: callerUserId },
                 attributes: ['id', 'firstName', 'lastName', 'phone', 'imageProfile'],
-                transaction,
-                raw: true
+                transaction
             });
 
             //  Read target user fcmTokens from database
             const fcmTokensRaw = (await Token.findAll({
                 where: { ownerId: userId },
                 attributes: ['deviceId', 'fcmToken'],
-                raw: true,
-                transaction
+                transaction,
+                raw: true
             }));
             
             const fcmTokens = fcmTokensRaw.map(t => t.fcmToken);
@@ -376,8 +371,8 @@ module.exports = (io, activeUsers, socket) => {
             //  Notify both caller and target users
             if(filteredFcmTokens.length > 0) {
                 await sendPushNotification(filteredFcmTokens, {
-                    type: "incoming-call-handled",
-                    callId
+                    callId: callId.toString(),
+                    type: "incoming-call-handled"
                 });
             }
             

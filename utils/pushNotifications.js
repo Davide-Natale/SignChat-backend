@@ -9,9 +9,15 @@ admin.initializeApp({
 });
 
 const sendPushNotification = async (fcmTokens, data) => {
+    const cleanedData = Object.fromEntries(
+        Object.entries(data).filter(([_, value]) => value !== undefined)
+    );
+
+    console.log(cleanedData);
+
     const message = {
         tokens: fcmTokens,
-        data,
+        data: cleanedData,
         android: {
             priority: 'high'
         }
