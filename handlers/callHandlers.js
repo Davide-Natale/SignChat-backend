@@ -21,9 +21,9 @@ module.exports = (io, activeUsers, socket) => {
     const onCallUser = async ({ targetUserId, targetPhone }) => {
         const callerUser = activeUsers.get(userId);
 
-        //  Check if an active call with targetUserId already exists
-        if(callerUser.activeCalls.has(targetUserId)) {
-            return io.to(socket.id).emit('call-error', { message: 'An active calls already exists.' });
+        //  Check if an active call already exists
+        if(callerUser.status !== 'available') {
+            return io.to(socket.id).emit('call-error', { message: 'An active call already exists.' });
         }    
 
         //  Start a new transaction
@@ -47,12 +47,13 @@ module.exports = (io, activeUsers, socket) => {
                 transaction
             })).map(t => t.fcmToken);
 
-            if (fcmTokens.length === 0) {
+            //  TODO: uncomment once tested
+            /*if (fcmTokens.length === 0) {
                 //  Rollback transaction in case of error
                 await transaction.rollback();
 
                 return io.to(socket.id).emit('call-error', { message: 'User unreachable.' });  
-            }
+            }*/
             
             //  Read contact of caller user from database
             const callerUserContact = await Contact.findOne({
@@ -118,7 +119,7 @@ module.exports = (io, activeUsers, socket) => {
                         callerUserCall.id,
                         targetUserCall.id, 
                         fcmTokens
-                    ), 30000
+                    ), 10000    //  TODO: change with 30 seconds
                 )
             });
 
@@ -131,12 +132,12 @@ module.exports = (io, activeUsers, socket) => {
             });
 
             //  Notify targetUser of the incoming-call
-            await sendPushNotification(fcmTokens, {
+            /*await sendPushNotification(fcmTokens, {
                 type: "incoming-call",
                 callId: targetUserCall.id,
                 contact: targetUserContact,
                 user: !targetUserContact ? callerUserData : undefined
-            });
+            });*/
             
             //  Commit transaction
             await transaction.commit();
@@ -176,7 +177,7 @@ module.exports = (io, activeUsers, socket) => {
             });
 
             //  Notify both caller and target users
-            await sendPushNotification(fcmTokens, {
+            /*await sendPushNotification(fcmTokens, {
                 type: "incoming-call-handled",
                 callId: targetUserCallId
             });
@@ -194,7 +195,7 @@ module.exports = (io, activeUsers, socket) => {
                       }
                     })
                 });
-            }, 2000);
+            }, 2000);*/
             
             //  Commit transaction
             await transaction.commit();
@@ -209,7 +210,7 @@ module.exports = (io, activeUsers, socket) => {
 
     const onEndCall = async ({ callId, otherUserId }) => {
         try {
-            await endCall(callId, otherUserId, activeUsers, socket, io);
+            await endCall(callId, otherUserId, activeUsers, userId, io);
         } catch (error) {
             console.log(error);
             io.to(socket.id).emit('call-error', { message: error.message });
@@ -235,7 +236,7 @@ module.exports = (io, activeUsers, socket) => {
             //  If user already is busy, end existing active call
             if(targetUser.status === 'busy') {
                 const [otherUserId, activeCall] = targetUser.activeCalls.entries().find(([_, call]) => call.status === 'ongoing');
-                await endCall(activeCall.callId, otherUserId, activeUsers, socket, io);
+                await endCall(activeCall.callId, otherUserId, activeUsers, userId, io);
             }
 
             //  Read target user fcmTokens from database

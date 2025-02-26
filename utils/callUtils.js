@@ -8,8 +8,7 @@ const User = require("../models/user");
 const Call = require('../models/call');
 
 //  TODO: remove logging when test completed
-const endCall = async (callId, otherUserId, activeUsers, socket, io) => {
-    const userId = socket.user.id;
+const endCall = async (callId, otherUserId, activeUsers, userId, io) => {;
     const user = activeUsers.get(userId);
     const otherUser = activeUsers.get(otherUserId);
 
@@ -23,6 +22,7 @@ const endCall = async (callId, otherUserId, activeUsers, socket, io) => {
     try {
         let otherUserSocketId;
         const userCall = user.activeCalls.get(otherUserId);
+        const userSocketId = userCall.socketId; 
         const isCallRinging = userCall.status === 'ringing';
 
         //  Search calls in the database
@@ -134,7 +134,7 @@ const endCall = async (callId, otherUserId, activeUsers, socket, io) => {
             io.to(otherUserSocketId).emit('call-ended', { reason: 'completed' }); 
         }
 
-        io.to(socket.id).emit('call-ended', { reason: 'completed' });
+        io.to(userSocketId).emit('call-ended', { reason: 'completed' });
     } catch (error) {
         //  Rollback transaction in case of error
         await transaction.rollback();

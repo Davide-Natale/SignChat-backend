@@ -114,8 +114,9 @@ exports.deleteCalls = async (req, res) => {
         await Call.destroy({ 
             where: { 
                 id: { [Sequelize.Op.in]: ids },
-                ownerId: userId
-            } 
+                ownerId: userId,
+                status: { [Sequelize.Op.ne]: 'ongoing' }
+            }
         });
 
         res.json({ message: 'Calls deleted successfully.' });
