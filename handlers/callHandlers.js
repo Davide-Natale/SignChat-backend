@@ -47,13 +47,12 @@ module.exports = (io, activeUsers, socket) => {
                 transaction
             })).map(t => t.fcmToken);
 
-            //  TODO: uncomment once tested
-            /*if (fcmTokens.length === 0) {
+            if (fcmTokens.length === 0) {
                 //  Rollback transaction in case of error
                 await transaction.rollback();
 
                 return io.to(socket.id).emit('call-error', { message: 'User unreachable.' });  
-            }*/
+            }
             
             //  Read contact of caller user from database
             const callerUserContact = await Contact.findOne({
@@ -116,7 +115,7 @@ module.exports = (io, activeUsers, socket) => {
                         callerUserCall.id,
                         targetUserCall.id, 
                         fcmTokens
-                    ), 15000    //  TODO: change with 30 seconds
+                    ), 30000    //  TODO: change with 30 seconds
                 )
             });
 
@@ -167,14 +166,8 @@ module.exports = (io, activeUsers, socket) => {
             const newStatus = callerUser.activeCalls.size === 0 ? 'available' : callerUser.status;
             activeUsers.set(userId, { ...callerUser, status: newStatus });
 
-            //  Some Logging
-            activeUsers.entries().forEach(([key, userData]) => {
-                console.log(key);
-                console.log(userData);
-            });
-
             //  Notify both caller and target users
-            /*await sendPushNotification(fcmTokens, {
+            await sendPushNotification(fcmTokens, {
                 type: "incoming-call-handled",
                 callId: targetUserCallId.toString()
             });
@@ -192,14 +185,13 @@ module.exports = (io, activeUsers, socket) => {
                       }
                     })
                 });
-            }, 2000);*/
+            }, 2000);
             
             //  Commit transaction
             await transaction.commit();
 
             io.to(socket.id).emit('call-ended', { reason: 'unanswered' });
         } catch (error) {
-            console.log(error);
             //  Rollback transaction in case of error
             await transaction.rollback();
         }
@@ -362,12 +354,6 @@ module.exports = (io, activeUsers, socket) => {
             const newStatus = callerUser.activeCalls.size === 0 ? 'available' : callerUser.status;
             activeUsers.set(callerUserId, { ...callerUser, status: newStatus });
 
-            //  Some Logging
-            activeUsers.entries().forEach(([key, userData]) => {
-                console.log(key);
-                console.log(userData);
-            });
-
             //  Notify both caller and target users
             if(filteredFcmTokens.length > 0) {
                 await sendPushNotification(filteredFcmTokens, {
@@ -396,7 +382,6 @@ module.exports = (io, activeUsers, socket) => {
 
             io.to(callerUserSocketId).emit('call-ended', { reason: 'rejected' });
         } catch (error) {
-            console.log(error);
             //  Rollback transaction in case of error
             await transaction.rollback();
 

@@ -13,8 +13,6 @@ const sendPushNotification = async (fcmTokens, data) => {
         Object.entries(data).filter(([_, value]) => value !== undefined)
     );
 
-    console.log(cleanedData);
-
     const message = {
         tokens: fcmTokens,
         data: cleanedData,
