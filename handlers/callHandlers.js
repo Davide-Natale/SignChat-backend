@@ -14,7 +14,6 @@ const { endCall } = require('../utils/callUtils');
 
 dayjs.extend(utc);
 
-//  TODO: remove logging when test completed
 module.exports = (io, activeUsers, socket) => {
     const userId = socket.user.id;
 
@@ -115,17 +114,11 @@ module.exports = (io, activeUsers, socket) => {
                         callerUserCall.id,
                         targetUserCall.id, 
                         fcmTokens
-                    ), 30000    //  TODO: change with 30 seconds
+                    ), 30000
                 )
             });
 
             activeUsers.set(userId, { ...callerUser, status: 'ringing' });
-
-            //  Some Logging
-            activeUsers.entries().forEach(([key, userData]) => {
-                console.log(key);
-                console.log(userData);
-            });
 
             //  Notify targetUser of the incoming-call
             await sendPushNotification(fcmTokens, {
@@ -140,7 +133,6 @@ module.exports = (io, activeUsers, socket) => {
 
             io.to(socket.id).emit('call-started', { callId: callerUserCall.id });
         } catch (error) {
-            console.log(error);
             //  Rollback transaction in case of error
             await transaction.rollback();
 
@@ -201,7 +193,6 @@ module.exports = (io, activeUsers, socket) => {
         try {
             await endCall(callId, otherUserId, activeUsers, userId, io);
         } catch (error) {
-            console.log(error);
             io.to(socket.id).emit('call-error', { message: error.message });
         }
     };
@@ -257,14 +248,8 @@ module.exports = (io, activeUsers, socket) => {
 
             activeUsers.set(userId, { ...targetUser, status: 'busy' });
 
-            //  Some Logging
-            activeUsers.entries().forEach(([key, userData]) => {
-                console.log(key);
-                console.log(userData);
-            });
-
             //  Notify both caller and target users
-            if(fcmTokens > 0) {
+            if(fcmTokens.length > 0) {
                 await sendPushNotification(fcmTokens, {
                     callId: callId.toString(),
                     type: "incoming-call-handled" 
@@ -278,10 +263,9 @@ module.exports = (io, activeUsers, socket) => {
             //io.to(callerUser.socketId).emit('transport-created', transportCaller);
             //io.to(socket.id).emit('transport-created', transportReceiver);
 
-            io.to(socket.id).emit('call-answered');
+            io.to(socket.id).emit('call-joined', { callId });
             io.to(callerUserSocketId).emit('call-answered');
         } catch (error) {
-            console.log(error);
             io.to(socket.id).emit('call-error', { message: error.message });
         }
     };

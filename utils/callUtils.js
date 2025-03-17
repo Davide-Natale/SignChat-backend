@@ -6,9 +6,10 @@ const sequelize = require("../config/database");
 const Contact = require('../models/contact');
 const User = require("../models/user");
 const Call = require('../models/call');
+const dayjs = require('dayjs');
 
-//  TODO: remove logging when test completed
-const endCall = async (callId, otherUserId, activeUsers, userId, io) => {;
+const endCall = async (callId, otherUserId, activeUsers, userId, io) => {
+    const now = dayjs();
     const user = activeUsers.get(userId);
     const otherUser = activeUsers.get(otherUserId);
 
@@ -103,11 +104,13 @@ const endCall = async (callId, otherUserId, activeUsers, userId, io) => {;
                 throw new Error('User not found.');
             }
 
+            const duration = now.diff(dayjs(userCallData.date), 'second');
+
             //  Update user call in the database
-            await userCallData.update({ status: 'completed' }, { transaction });
+            await userCallData.update({ status: 'completed', duration }, { transaction });
 
             //  Update other user call in the database
-            await otherUserCallData.update({ status: 'completed' }, { transaction });
+            await otherUserCallData.update({ status: 'completed', duration }, { transaction });
 
             //  Update both users status and corresponding active calls
             user.activeCalls.delete(otherUserId);
@@ -118,12 +121,6 @@ const endCall = async (callId, otherUserId, activeUsers, userId, io) => {;
             otherUser.activeCalls.delete(userId);
             activeUsers.set(otherUserId, { ...otherUser, status: 'available' });
         }
-
-        //  Some Logging
-        activeUsers.entries().forEach(([key, userData]) => {
-            console.log(key);
-            console.log(userData);
-        });
 
         //  Commit transaction
         await transaction.commit();
