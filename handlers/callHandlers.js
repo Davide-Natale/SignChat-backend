@@ -10,10 +10,11 @@ const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const { Sequelize } = require("sequelize");
 const { endCall } = require('../utils/callUtils');
+const { createTransport } = require('../config/mediaSoup');
 
 dayjs.extend(utc);
 
-module.exports = (io, activeUsers, socket) => {
+module.exports = (io, activeUsers, socket, router, transports) => {
     const userId = socket.user.id;
 
     const onCallUser = async ({ targetUserId, targetPhone }) => {
@@ -102,7 +103,18 @@ module.exports = (io, activeUsers, socket) => {
                 userId: callerUserData.id
             }, { transaction });
 
-            //  Add new active call to callerUser and update its status
+            //  Create both send and receive transport for user
+            const { transport: sendTransport, params: sendTransportParams } = await createTransport(router);
+            const { transport: recvTransport, params: recvTransportParams } = await createTransport(router);
+
+            //  Add new transports to the transports map
+            transports.set(sendTransport.id, sendTransport);
+            transports.set(recvTransport.id, recvTransport);
+
+            //  TODO: remove once tested
+            console.log(transports);
+
+            //  Add new active call and new transports to callerUser and update its status
             callerUser.activeCalls.set(targetUserId, {
                 callId: callerUserCall.id,
                 socketId: socket.id,
@@ -117,7 +129,12 @@ module.exports = (io, activeUsers, socket) => {
                 )
             });
 
+            callerUser.transportIds.push(sendTransport.id, recvTransport.id);
+
             activeUsers.set(userId, { ...callerUser, status: 'ringing' });
+
+            //  TODO: remove this
+            console.log(activeUsers);
 
             //  Notify targetUser of the incoming-call
             await sendPushNotification(fcmTokens, {
@@ -130,7 +147,7 @@ module.exports = (io, activeUsers, socket) => {
             //  Commit transaction
             await transaction.commit();
 
-            io.to(socket.id).emit('call-started', { callId: callerUserCall.id });
+            io.to(socket.id).emit('call-started', { callId: callerUserCall.id, sendTransportParams, recvTransportParams });
         } catch (error) {
             //  Rollback transaction in case of error
             await transaction.rollback();
@@ -151,6 +168,15 @@ module.exports = (io, activeUsers, socket) => {
             
             //  Update target call status in the database
             await Call.update({ status: 'missed' }, { where: { id: targetUserCallId }, transaction });
+
+            //  Close and delete all transports associated to callerUser
+            callerUser.transportIds.forEach(transportId => {
+                const transport = transports.get(transportId);
+                transport.close();
+                transports.delete(transportId);
+            });
+
+            callerUser.transportIds = [];
 
             //  Remove active call from callerUser and update its status
             callerUser.activeCalls.delete(targetUserId);
@@ -188,6 +214,7 @@ module.exports = (io, activeUsers, socket) => {
         }
     };
 
+    //  TODO: add code to remove and close user transports when ended call
     const onEndCall = async ({ callId, otherUserId }) => {
         try {
             await endCall(callId, otherUserId, activeUsers, userId, io);
@@ -330,6 +357,15 @@ module.exports = (io, activeUsers, socket) => {
             const filteredFcmTokens = fcmTokensRaw
                 .filter(t => t.deviceId !== deviceId)
                 .map(t => t.fcmToken);
+
+            //  Close and delete all transports associated to callerUser
+            callerUser.transportIds.forEach(transportId => {
+                const transport = transports.get(transportId);
+                transport.close();
+                transports.delete(transportId);
+            });
+
+            callerUser.transportIds = [];
 
             //  Remove active call from callerUser and update its status
             clearTimeout(callerUserCall.timeout);

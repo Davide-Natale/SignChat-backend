@@ -37,10 +37,10 @@ app.use('/api', tokensRoutes);
 (async () => {
   try {
     //  Initialize MediaSoup
-    await initMediaSoup();
+    const { router } = await initMediaSoup();
 
     //  Initialize WebSocket
-    initWebSocket(server);
+    initWebSocket(server, router);
 
     //  Connect to Redis
     await redisClient.connect();

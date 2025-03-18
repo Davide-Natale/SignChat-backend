@@ -2,14 +2,27 @@
 
 const mediaSoup = require('../config/mediaSoup');
 
-const onGetRouterRtpCapabilities = (callback) => {
-    const router = mediaSoup.getRouter();
+//  TODO: remove logging once tested
+module.exports = (router, transports) => {
+    const onGetRouterRtpCapabilities = (callback) => {
+        if(router) {
+            callback(router.rtpCapabilities);
+        } else {
+            callback(null);
+        }
+    };
 
-    if(router) {
-        callback(router.rtpCapabilities);
-    } else {
-        callback(null);
-    }
-};
+    const onConnectTransport = async ({ transportId, dtlsParameters }, callback) => {
+        try {
+            const transport = transports.get(transportId);
+            console.log(transport);
+            await transport.connect({ dtlsParameters });
+            callback({ success: true });
+        } catch (error) {
+            console.log(error);
+            callback({ success: false, error: error.message });
+        }
+    };
 
-module.exports = { onGetRouterRtpCapabilities };
+    return { onGetRouterRtpCapabilities, onConnectTransport };
+}

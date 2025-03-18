@@ -2,12 +2,6 @@
 
 const mediasoup = require('mediasoup');
 
-const workerSettings = {
-  logLevel: 'warn',
-  rtcMinPort: 40000,
-  rtcMaxPort: 49999,
-};
-
 const mediaCodecs = [
   {
     kind: 'audio',
@@ -25,39 +19,47 @@ const mediaCodecs = [
   },
 ];
 
-let worker;
-let router;
-let transports = new Map();
-let producers = new Map;
-let consumers = new Map;
-
 const initMediaSoup = async () => {
-  worker = await mediasoup.createWorker(workerSettings);
+  const worker = await mediasoup.createWorker({ logLevel: 'debug' });
   worker.on("died", () => { //  TODO: remove once tested
     console.error("Mediasoup worker has died");
     process.exit(1);
   });
 
-  router = await worker.createRouter({ mediaCodecs });
+  const router = await worker.createRouter({ mediaCodecs });
+
+  return { worker, router };
 };
 
-const createTransport = async (userId) => {
-  const transport = await router.createWebRtcTransport({
-    listenIps: [{ ip: '0.0.0.0', announcedIp: process.env.PUBLIC_IP }],
-    enableUdp: true,
-    enableTcp: true,
-  });
-
-  transports.set(userId, transport);
+const createTransport = async (router) => {
+  try {
+    const transport = await router.createWebRtcTransport({
+      listenInfos :
+      [
+        {
+          protocol: 'udp', 
+          ip: process.env.SERVER_IP,
+          portRange: {
+            min: 40000,
+            max: 49999
+          }
+        }
+      ]
+    });
+    
+    return {
+      transport,
+      params: {
+        id: transport.id,
+        iceParameters: transport.iceParameters,
+        iceCandidates: transport.iceCandidates,
+        dtlsParameters: transport.dtlsParameters,
+      }
+    };
+  } catch (error) {
+    throw error;
+  }
   
-  return {
-    id: transport.id,
-    iceParameters: transport.iceParameters,
-    iceCandidates: transport.iceCandidates,
-    dtlsParameters: transport.dtlsParameters,
-  };
 };
 
-const getRouter = () => router;
-
-module.exports = { initMediaSoup, createTransport, getRouter, transports, producers, consumers };
+module.exports = { initMediaSoup, createTransport };

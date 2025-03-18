@@ -5,9 +5,12 @@ const authenticateSocket = require('../middlewares/socketAuthMiddleware');
 
 let io;
 const activeUsers = new Map();
+const transports = new Map();
+const producers = new Map();
+const consumers = new Map();
 
 //  TODO: remove logging when test completed
-function initWebSocket(server) {
+function initWebSocket(server, router) {
   //  Create WebSocket instance
   io = new Server(server);
 
@@ -23,6 +26,7 @@ function initWebSocket(server) {
       activeUsers.set(userId, {
         status: 'available',
         socketIds: [socket.id],
+        transportIds: [],
         activeCalls: new Map()
       });
     } else {
@@ -40,11 +44,20 @@ function initWebSocket(server) {
     console.log(`User connected: ${userId} (${socket.id})`);
     console.log(activeUsers);
 
-    const { onGetRouterRtpCapabilities } = require('../handlers/mediaSoupHandlers');
-    const { onCallUser, onEndCall, onAnswerCall, onRejectCall } = require('../handlers/callHandlers')(io, activeUsers, socket);
+    const { onGetRouterRtpCapabilities, onConnectTransport } = require('../handlers/mediaSoupHandlers')(router, transports);
+    const { onCallUser, onEndCall, onAnswerCall, onRejectCall } = require('../handlers/callHandlers')(
+      io, 
+      activeUsers, 
+      socket, 
+      router, 
+      transports
+    );
     
     //  Get Router RtpCapabilities
     socket.on('getRouterRtpCapabilities', onGetRouterRtpCapabilities);
+
+    //  Connect Transport
+    socket.on('connectTransport', onConnectTransport);
 
     //  Start Video Call
     socket.on('call-user', onCallUser);

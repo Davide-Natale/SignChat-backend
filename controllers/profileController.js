@@ -211,7 +211,7 @@ exports.uploadProfileImage = async (req, res) => {
     }
 
     const imagePath = req.file.path;
-    const imageUrl = `http://192.168.178.183:${process.env.PORT}` + '/uploads/' +
+    const imageUrl = `http://${process.env.SERVER_IP}:${process.env.PORT}/uploads/` +
         imagePath.split(path.sep + 'uploads' + path.sep)[1];
 
     try {
