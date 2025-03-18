@@ -10,7 +10,6 @@ const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const { Sequelize } = require("sequelize");
 const { endCall } = require('../utils/callUtils');
-//const mediasoup = require('./mediasoup');
 
 dayjs.extend(utc);
 

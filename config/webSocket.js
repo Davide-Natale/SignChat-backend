@@ -40,7 +40,11 @@ function initWebSocket(server) {
     console.log(`User connected: ${userId} (${socket.id})`);
     console.log(activeUsers);
 
+    const { onGetRouterRtpCapabilities } = require('../handlers/mediaSoupHandlers');
     const { onCallUser, onEndCall, onAnswerCall, onRejectCall } = require('../handlers/callHandlers')(io, activeUsers, socket);
+    
+    //  Get Router RtpCapabilities
+    socket.on('getRouterRtpCapabilities', onGetRouterRtpCapabilities);
 
     //  Start Video Call
     socket.on('call-user', onCallUser);

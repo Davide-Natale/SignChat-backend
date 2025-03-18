@@ -13,7 +13,7 @@ const contactsRoutes = require('./routes/contacstRoutes');
 const callsRoutes = require('./routes/callsRoutes');
 const tokensRoutes = require('./routes/tokensRoutes');
 const redisClient = require('./config/redisClient');
-const mediasoup = require('./config/mediaSoup');
+const { initMediaSoup } = require('./config/mediaSoup');
 const { initWebSocket } = require('./config/webSocket');
 
 // Init express
@@ -34,13 +34,13 @@ app.use('/api', contactsRoutes);
 app.use('/api', callsRoutes);
 app.use('/api', tokensRoutes);
 
-//  Initialize WebSocket
-initWebSocket(server);
-
 (async () => {
   try {
     //  Initialize MediaSoup
-    //await mediasoup.createWorker();
+    await initMediaSoup();
+
+    //  Initialize WebSocket
+    initWebSocket(server);
 
     //  Connect to Redis
     await redisClient.connect();

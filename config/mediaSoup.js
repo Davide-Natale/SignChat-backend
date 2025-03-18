@@ -1,5 +1,5 @@
 'use strict';
-/*
+
 const mediasoup = require('mediasoup');
 
 const workerSettings = {
@@ -28,17 +28,20 @@ const mediaCodecs = [
 let worker;
 let router;
 let transports = new Map();
-let producers = {};
-let consumers = {};
-let rooms = {};
+let producers = new Map;
+let consumers = new Map;
 
-async function createWorker() {
+const initMediaSoup = async () => {
   worker = await mediasoup.createWorker(workerSettings);
-  router = await worker.createRouter({ mediaCodecs });
-  console.log('MediaSoup Worker e Router creati');
-}
+  worker.on("died", () => { //  TODO: remove once tested
+    console.error("Mediasoup worker has died");
+    process.exit(1);
+  });
 
-async function createTransport(userId) {
+  router = await worker.createRouter({ mediaCodecs });
+};
+
+const createTransport = async (userId) => {
   const transport = await router.createWebRtcTransport({
     listenIps: [{ ip: '0.0.0.0', announcedIp: process.env.PUBLIC_IP }],
     enableUdp: true,
@@ -53,10 +56,8 @@ async function createTransport(userId) {
     iceCandidates: transport.iceCandidates,
     dtlsParameters: transport.dtlsParameters,
   };
-}
+};
 
-function getRouter() {
-  return router;
-}
+const getRouter = () => router;
 
-module.exports = { createWorker, createTransport, getRouter, transports, producers, consumers, rooms };*/
+module.exports = { initMediaSoup, createTransport, getRouter, transports, producers, consumers };
