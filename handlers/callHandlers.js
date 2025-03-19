@@ -103,7 +103,7 @@ module.exports = (io, activeUsers, socket, router, transports) => {
                 userId: callerUserData.id
             }, { transaction });
 
-            //  Create both send and receive transport for user
+            //  Create both send and receive transport for caller User
             const { transport: sendTransport, params: sendTransportParams } = await createTransport(router);
             const { transport: recvTransport, params: recvTransportParams } = await createTransport(router);
 
@@ -214,10 +214,9 @@ module.exports = (io, activeUsers, socket, router, transports) => {
         }
     };
 
-    //  TODO: add code to remove and close user transports when ended call
     const onEndCall = async ({ callId, otherUserId }) => {
         try {
-            await endCall(callId, otherUserId, activeUsers, userId, io);
+            await endCall(callId, otherUserId, activeUsers, transports, userId, io);
         } catch (error) {
             io.to(socket.id).emit('call-error', { message: error.message });
         }
@@ -255,6 +254,14 @@ module.exports = (io, activeUsers, socket, router, transports) => {
                 raw: true
             })).map(t => t.fcmToken);
 
+            //  Create both send and receive transport for target user
+            const { transport: sendTransport, params: sendTransportParams } = await createTransport(router);
+            const { transport: recvTransport, params: recvTransportParams } = await createTransport(router);
+
+            //  Add new transports to the transports map
+            transports.set(sendTransport.id, sendTransport);
+            transports.set(recvTransport.id, recvTransport);
+
             //  Update caller user status and corresponding active call
             const callerUserCall = callerUser.activeCalls.get(userId);
             const callerUserSocketId = callerUserCall.socketId;
@@ -272,6 +279,7 @@ module.exports = (io, activeUsers, socket, router, transports) => {
                 status: 'ongoing'
             });
 
+            targetUser.transportIds.push(sendTransport.id, recvTransport.id);
             activeUsers.set(userId, { ...targetUser, status: 'busy' });
 
             //  Notify both caller and target users
@@ -282,14 +290,7 @@ module.exports = (io, activeUsers, socket, router, transports) => {
                 });
             }
 
-            //  TODO: uncomment when implement MediaSoup
-            //const transportCaller = await mediasoup.createTransport(callerSocketId);
-            //const transportReceiver = await mediasoup.createTransport(socket.id);
-
-            //io.to(callerUser.socketId).emit('transport-created', transportCaller);
-            //io.to(socket.id).emit('transport-created', transportReceiver);
-
-            io.to(socket.id).emit('call-joined', { callId });
+            io.to(socket.id).emit('call-joined', { callId, sendTransportParams, recvTransportParams });
             io.to(callerUserSocketId).emit('call-answered');
         } catch (error) {
             io.to(socket.id).emit('call-error', { message: error.message });

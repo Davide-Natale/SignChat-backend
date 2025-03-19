@@ -8,7 +8,7 @@ const User = require("../models/user");
 const Call = require('../models/call');
 const dayjs = require('dayjs');
 
-const endCall = async (callId, otherUserId, activeUsers, userId, io) => {
+const endCall = async (callId, otherUserId, activeUsers, transports, userId, io) => {
     const now = dayjs();
     const user = activeUsers.get(userId);
     const otherUser = activeUsers.get(otherUserId);
@@ -74,6 +74,15 @@ const endCall = async (callId, otherUserId, activeUsers, userId, io) => {
                 raw: true
             })).map(t => t.fcmToken);
 
+            //  Close and delete all transports associated to user
+            user.transportIds.forEach(transportId => {
+                const transport = transports.get(transportId);
+                transport.close();
+                transports.delete(transportId);
+            });
+
+            user.transportIds = [];
+
             //  Update user status and corresponding active calls
             clearTimeout(userCall.timeout);
             user.activeCalls.delete(otherUserId);
@@ -111,6 +120,24 @@ const endCall = async (callId, otherUserId, activeUsers, userId, io) => {
 
             //  Update other user call in the database
             await otherUserCallData.update({ status: 'completed', duration }, { transaction });
+
+            //  Close and delete all transports associated to user
+            user.transportIds.forEach(transportId => {
+                const transport = transports.get(transportId);
+                transport.close();
+                transports.delete(transportId);
+            });
+
+            user.transportIds = [];
+
+            //  Close and delete all transports associated to otherUser
+            otherUser.transportIds.forEach(transportId => {
+                const transport = transports.get(transportId);
+                transport.close();
+                transports.delete(transportId);
+            });
+
+            otherUser.transportIds = [];
 
             //  Update both users status and corresponding active calls
             user.activeCalls.delete(otherUserId);
