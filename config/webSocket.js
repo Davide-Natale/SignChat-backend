@@ -64,7 +64,7 @@ function initWebSocket(server, router) {
       onEndCall, 
       onAnswerCall, 
       onRejectCall 
-    } = require('../handlers/callHandlers')(io, activeUsers, socket, router, transports);
+    } = require('../handlers/callHandlers')(io, activeUsers, socket, router, transports, producers, consumers);
     
     //  Get Router RtpCapabilities
     socket.on('getRouterRtpCapabilities', onGetRouterRtpCapabilities);
@@ -72,7 +72,6 @@ function initWebSocket(server, router) {
     //  Connect Transport
     socket.on('connect-transport', onConnectTransport);
 
-    //  TODO: implement it
     //  Create Producer
     socket.on('create-producer', onCreateProducer);
 

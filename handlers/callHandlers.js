@@ -14,7 +14,7 @@ const { createTransport } = require('../config/mediaSoup');
 
 dayjs.extend(utc);
 
-module.exports = (io, activeUsers, socket, router, transports) => {
+module.exports = (io, activeUsers, socket, router, transports, producers, consumers) => {
     const userId = socket.user.id;
 
     const onCallUser = async ({ targetUserId, targetPhone }) => {
@@ -111,9 +111,6 @@ module.exports = (io, activeUsers, socket, router, transports) => {
             transports.set(sendTransport.id, sendTransport);
             transports.set(recvTransport.id, recvTransport);
 
-            //  TODO: remove once tested
-            //console.log(transports);
-
             //  Add new active call and new transports to callerUser and update its status
             callerUser.activeCalls.set(targetUserId, {
                 callId: callerUserCall.id,
@@ -131,9 +128,6 @@ module.exports = (io, activeUsers, socket, router, transports) => {
 
             callerUser.transportIds.push(sendTransport.id, recvTransport.id);
             activeUsers.set(userId, { ...callerUser, status: 'ringing' });
-
-            //  TODO: remove this
-            console.log(activeUsers);
 
             //  Notify targetUser of the incoming-call
             await sendPushNotification(fcmTokens, {
@@ -213,10 +207,10 @@ module.exports = (io, activeUsers, socket, router, transports) => {
         }
     };
 
-    //  TODO: add clear of consumers and producers
+
     const onEndCall = async ({ callId, otherUserId }) => {
         try {
-            await endCall(callId, otherUserId, activeUsers, transports, userId, io);
+            await endCall(callId, otherUserId, activeUsers, transports, producers, consumers, userId, io);
         } catch (error) {
             io.to(socket.id).emit('call-error', { message: error.message });
         }
@@ -241,7 +235,7 @@ module.exports = (io, activeUsers, socket, router, transports) => {
             //  If user already is busy, end existing active call
             if(targetUser.status === 'busy') {
                 const [otherUserId, activeCall] = targetUser.activeCalls.entries().find(([_, call]) => call.status === 'ongoing');
-                await endCall(activeCall.callId, otherUserId, activeUsers, userId, io);
+                await endCall(activeCall.callId, otherUserId, activeUsers, transports, producers, consumers, userId, io);
             }
 
             //  Read target user fcmTokens from database

@@ -1,6 +1,5 @@
 'use strict';
 
-//  TODO: remove logging once tested
 module.exports = (io, activeUsers, socket, router, transports, producers, pendingProducers, consumers) => {
     const userId = socket.user.id;
 
@@ -18,13 +17,11 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
             await transport.connect({ dtlsParameters });
             callback({ success: true });
         } catch (error) {
-            console.log(error);
             callback({ success: false, error: error.message });
         }
     };
 
     const onCreateProducer = async ({ transportId, kind, rtpParameters, appData }, callback) => {
-        console.log('Sto creando il producer');
         try {
             const user = activeUsers.get(userId);
             const callEntry = user.activeCalls.entries().find(([_, call]) => call.status === 'ongoing');
@@ -39,23 +36,14 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
             const otherUser = activeUsers.get(otherUserId);
             const otherUserSocketId = otherUser.activeCalls.get(userId).socketId;
             const transport = transports.get(transportId);
-            //console.log(transport.id);
             const producer = await transport.produce({ kind, rtpParameters, appData });
-            //console.log(producer.id);
             producers.set(producer.id, producer);
 
             //  Add new producer to user
             user.producerIds.push(producer.id);
             activeUsers.set(userId, user);
 
-            //  TODO: remove this
-            //console.log(producers);
-            activeUsers.values().forEach(user => {
-                console.log(user);
-            });
-
             if(otherUser.isReadyToConsume) {
-                console.log('Sending producerId to: ', otherUserSocketId);
                 io.to(otherUserSocketId).emit('new-producer', { producerId: producer.id });
             } else {
                 if(!pendingProducers.has(otherUserId)) {
@@ -65,14 +53,10 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
                     otherUserPendingProducers.push(producer.id);
                     pendingProducers.set(otherUserId, otherUserPendingProducers);
                 }
-
-                //  TODO: remove this
-                console.log(pendingProducers);
             }
 
             callback({ success: true, id: producer.id });
         } catch (error) {
-            console.log(error);
             callback({ sucess: false, error: error.message });
         }
     };
@@ -100,7 +84,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
     }; 
       
     const onCreateConsumer = async ({ transportId, producerId, rtpCapabilities }, callback) => {
-        console.log('Sto creando il consumer');
         try {
             if(!router.canConsume({ producerId, rtpCapabilities })) {
                 callback({ sucess: false, error: 'Cannot consume this producer.' });
@@ -109,21 +92,15 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
 
             const user = activeUsers.get(userId);
             const transport = transports.get(transportId);
-            //console.log(transport.id);
 
             //  TODO: we can add the event handler that intercept when associated producer is paused or resume
             //  to change client-side view
             const consumer = await transport.consume({ producerId, rtpCapabilities, paused: true });
-            //console.log(consumer.id);
             consumers.set(consumer.id, consumer);
 
             //  Add new consumer to user
             user.consumerIds.push(consumer.id);
             activeUsers.set(userId, user);
-
-            //  TODO: remove this
-            //console.log(consumers);
-            console.log(activeUsers);
 
             callback({ 
                 success: true, 
@@ -135,7 +112,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
                 }
             });
         } catch (error) {
-            console.log(error);
             callback({ success: false, error: error.message });
         }
     };
@@ -146,7 +122,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
             await consumer.resume();
             callback({ success: true });
         } catch (error) {
-            console.log(error);
             callback({ success: false, error: error.message });
         }
     };
@@ -167,9 +142,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
             });
 
             pendingProducers.delete(userId);
-
-            //  TODO: remove this
-            console.log(pendingProducers);
         }
     };
 

@@ -8,7 +8,7 @@ const User = require("../models/user");
 const Call = require('../models/call');
 const dayjs = require('dayjs');
 
-const endCall = async (callId, otherUserId, activeUsers, transports, userId, io) => {
+const endCall = async (callId, otherUserId, activeUsers, transports, producers, consumers, userId, io) => {
     const now = dayjs();
     const user = activeUsers.get(userId);
     const otherUser = activeUsers.get(otherUserId);
@@ -128,7 +128,13 @@ const endCall = async (callId, otherUserId, activeUsers, transports, userId, io)
                 transports.delete(transportId);
             });
 
+            //  Delete all producers and consumers associated to user
+            user.producerIds.forEach(producerId => { producers.delete(producerId); });
+            user.consumerIds.forEach(consumerId => { consumers.delete(consumerId); });
+
             user.transportIds = [];
+            user.producerIds = [];
+            user.consumerIds = [];
 
             //  Close and delete all transports associated to otherUser
             otherUser.transportIds.forEach(transportId => {
@@ -137,16 +143,22 @@ const endCall = async (callId, otherUserId, activeUsers, transports, userId, io)
                 transports.delete(transportId);
             });
 
+            //  Delete all producers and consumers associated to otherUser
+            otherUser.producerIds.forEach(producerId => { producers.delete(producerId); });
+            otherUser.consumerIds.forEach(consumerId => { consumers.delete(consumerId); });
+
             otherUser.transportIds = [];
+            otherUser.producerIds = [];
+            otherUser.consumerIds = [];
 
             //  Update both users status and corresponding active calls
             user.activeCalls.delete(otherUserId);
-            activeUsers.set(userId, { ...user, status: 'available' });
+            activeUsers.set(userId, { ...user, status: 'available', isReadyToConsume: false });
 
             const otherUserCall = otherUser.activeCalls.get(userId);
             otherUserSocketId = otherUserCall.socketId
             otherUser.activeCalls.delete(userId);
-            activeUsers.set(otherUserId, { ...otherUser, status: 'available' });
+            activeUsers.set(otherUserId, { ...otherUser, status: 'available', isReadyToConsume: false });
         }
 
         //  Commit transaction

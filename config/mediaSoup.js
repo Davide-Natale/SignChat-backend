@@ -21,7 +21,7 @@ const mediaCodecs = [
 
 const initMediaSoup = async () => {
   const worker = await mediasoup.createWorker({ logLevel: 'debug' });
-  worker.on("died", () => { //  TODO: remove once tested
+  worker.on("died", () => {
     console.error("Mediasoup worker has died");
     process.exit(1);
   });
