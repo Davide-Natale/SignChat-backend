@@ -112,7 +112,7 @@ module.exports = (io, activeUsers, socket, router, transports) => {
             transports.set(recvTransport.id, recvTransport);
 
             //  TODO: remove once tested
-            console.log(transports);
+            //console.log(transports);
 
             //  Add new active call and new transports to callerUser and update its status
             callerUser.activeCalls.set(targetUserId, {
@@ -130,7 +130,6 @@ module.exports = (io, activeUsers, socket, router, transports) => {
             });
 
             callerUser.transportIds.push(sendTransport.id, recvTransport.id);
-
             activeUsers.set(userId, { ...callerUser, status: 'ringing' });
 
             //  TODO: remove this
@@ -214,6 +213,7 @@ module.exports = (io, activeUsers, socket, router, transports) => {
         }
     };
 
+    //  TODO: add clear of consumers and producers
     const onEndCall = async ({ callId, otherUserId }) => {
         try {
             await endCall(callId, otherUserId, activeUsers, transports, userId, io);

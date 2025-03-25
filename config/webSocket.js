@@ -7,6 +7,7 @@ let io;
 const activeUsers = new Map();
 const transports = new Map();
 const producers = new Map();
+const pendingProducers = new Map();
 const consumers = new Map();
 
 //  TODO: remove logging when test completed
@@ -25,8 +26,11 @@ function initWebSocket(server, router) {
       //  Add user to active users if not exists
       activeUsers.set(userId, {
         status: 'available',
+        isReadyToConsume: false,
         socketIds: [socket.id],
         transportIds: [],
+        producerIds: [],
+        consumerIds: [],
         activeCalls: new Map()
       });
     } else {
@@ -44,20 +48,48 @@ function initWebSocket(server, router) {
     console.log(`User connected: ${userId} (${socket.id})`);
     console.log(activeUsers);
 
-    const { onGetRouterRtpCapabilities, onConnectTransport } = require('../handlers/mediaSoupHandlers')(router, transports);
-    const { onCallUser, onEndCall, onAnswerCall, onRejectCall } = require('../handlers/callHandlers')(
-      io, 
-      activeUsers, 
-      socket, 
-      router, 
-      transports
-    );
+    const { 
+      onGetRouterRtpCapabilities, 
+      onConnectTransport, 
+      onCreateProducer, 
+      onPauseProducer, 
+      onResumeProducer, 
+      onCreateConsumer, 
+      onResumeConsumer,
+      onReadyToConsume,
+    } = require('../handlers/mediaSoupHandlers')(io, activeUsers, socket, router, transports, producers, pendingProducers, consumers);
+
+    const { 
+      onCallUser, 
+      onEndCall, 
+      onAnswerCall, 
+      onRejectCall 
+    } = require('../handlers/callHandlers')(io, activeUsers, socket, router, transports);
     
     //  Get Router RtpCapabilities
     socket.on('getRouterRtpCapabilities', onGetRouterRtpCapabilities);
 
     //  Connect Transport
-    socket.on('connectTransport', onConnectTransport);
+    socket.on('connect-transport', onConnectTransport);
+
+    //  TODO: implement it
+    //  Create Producer
+    socket.on('create-producer', onCreateProducer);
+
+    //  Pause Producer
+    socket.on('pause-producer', onPauseProducer);
+
+    //  Resume Producer
+    socket.on('resume-producer', onResumeProducer);
+
+    //  Create Consumer
+    socket.on('create-consumer', onCreateConsumer);
+
+    //  Resume Consumer
+    socket.on('resume-consumer', onResumeConsumer);
+
+    //  Ready to consume
+    socket.on('readyToConsume', onReadyToConsume);
 
     //  Start Video Call
     socket.on('call-user', onCallUser);
