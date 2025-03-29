@@ -67,7 +67,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
             await producer.pause();
             callback({ success: true });
         } catch (error) {
-            console.log(error);
             callback({ success: false, error: error.message });
         }
     };
@@ -78,7 +77,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
             await producer.resume();
             callback({ success: true });
         } catch (error) {
-            console.log(error);
             callback({ success: false, error: error.message });
         }
     }; 
@@ -92,10 +90,17 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
 
             const user = activeUsers.get(userId);
             const transport = transports.get(transportId);
-
-            //  TODO: we can add the event handler that intercept when associated producer is paused or resume
-            //  to change client-side view
             const consumer = await transport.consume({ producerId, rtpCapabilities, paused: true });
+            
+            //  Setup consumer to intercept when the associated producer is paused or resumed
+            consumer.on('producerpause', () => {
+                io.to(socket.id).emit('producer-paused', { kind: consumer.kind });
+            });
+
+            consumer.on('producerresume', () => {
+                io.to(socket.id).emit('producer-resumed', { kind: consumer.kind });
+            });
+
             consumers.set(consumer.id, consumer);
 
             //  Add new consumer to user
