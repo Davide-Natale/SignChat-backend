@@ -47,7 +47,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
 
             //  Add new producer to user
             user.producerIds.push(producer.id);
-            activeUsers.set(userId, user);
 
             if(otherUser.isReadyToConsume) {
                 io.to(otherUserSocketId).emit('new-producer', { producerId: producer.id });
@@ -57,7 +56,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
                 } else {
                     const otherUserPendingProducers = pendingProducers.get(otherUserId);
                     otherUserPendingProducers.push(producer.id);
-                    pendingProducers.set(otherUserId, otherUserPendingProducers);
                 }
             }
 
@@ -116,9 +114,8 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
 
             //  Add new consumer to user
             user.consumerIds.push(consumer.id);
-            activeUsers.set(userId, user);
 
-            callback({ 
+            callback({
                 success: true, 
                 params: {
                     id: consumer.id,
@@ -150,7 +147,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
 
         //  Update user's ready status
         user.isReadyToConsume = true;
-        activeUsers.set(userId, user);
 
         if(pendingProducers.has(userId)) {
             pendingProducers.get(userId).forEach(producerId => {

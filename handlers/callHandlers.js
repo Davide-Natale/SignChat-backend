@@ -127,7 +127,7 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             });
 
             callerUser.transportIds.push(sendTransport.id, recvTransport.id);
-            activeUsers.set(userId, { ...callerUser, status: 'ringing' });
+            callerUser.status = 'ringing';
 
             //  Notify targetUser of the incoming-call
             await sendPushNotification(fcmTokens, {
@@ -174,7 +174,7 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             //  Remove active call from callerUser and update its status
             callerUser.activeCalls.delete(targetUserId);
             const newStatus = callerUser.activeCalls.size === 0 ? 'available' : callerUser.status;
-            activeUsers.set(userId, { ...callerUser, status: newStatus });
+            callerUser.status = newStatus;
 
             //  Notify both caller and target users
             await sendPushNotification(fcmTokens, {
@@ -206,7 +206,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             await transaction.rollback();
         }
     };
-
 
     const onEndCall = async ({ callId, otherUserId }) => {
         try {
@@ -259,12 +258,10 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             //  Update caller user status and corresponding active call
             const callerUserCall = callerUser.activeCalls.get(userId);
             const callerUserSocketId = callerUserCall.socketId;
-
             clearTimeout(callerUserCall.timeout);
             delete callerUserCall.timeout;
-
-            callerUser.activeCalls.set(userId, { ...callerUserCall, status: 'ongoing' });
-            activeUsers.set(callerUserId, { ...callerUser, status: 'busy' });
+            callerUserCall.status = 'ongoing';
+            callerUser.status = 'busy';
 
             //  Update target user status and add call to active calls
             targetUser.activeCalls.set(callerUserId, {
@@ -274,7 +271,7 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             });
 
             targetUser.transportIds.push(sendTransport.id, recvTransport.id);
-            activeUsers.set(userId, { ...targetUser, status: 'busy' });
+            targetUser.status = 'busy';
 
             //  Notify both caller and target users
             if(fcmTokens.length > 0) {
@@ -366,7 +363,7 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             clearTimeout(callerUserCall.timeout);
             callerUser.activeCalls.delete(userId);
             const newStatus = callerUser.activeCalls.size === 0 ? 'available' : callerUser.status;
-            activeUsers.set(callerUserId, { ...callerUser, status: newStatus });
+            callerUser.status = newStatus;
 
             //  Notify both caller and target users
             if(filteredFcmTokens.length > 0) {

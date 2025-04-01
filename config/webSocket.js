@@ -41,8 +41,6 @@ function initWebSocket(server, router) {
       if(!userData.socketIds.includes(socket.id)) {
         userData.socketIds.push(socket.id);
       }
-      
-      activeUsers.set(userId, userData);
     }
 
     console.log(`User connected: ${userId} (${socket.id})`);
@@ -113,9 +111,6 @@ function initWebSocket(server, router) {
         if(userData.socketIds.length === 0) {
           //  Remove userId from active users if no more socketId are present
           activeUsers.delete(userId);
-        } else {
-          //  Udpate socketIds list associated to userId instead
-          activeUsers.set(userId, userData);
         }
         
         console.log(`Utente disconnected: ${userId}`);

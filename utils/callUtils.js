@@ -86,7 +86,7 @@ const endCall = async (callId, otherUserId, activeUsers, transports, producers, 
             //  Update user status and corresponding active calls
             clearTimeout(userCall.timeout);
             user.activeCalls.delete(otherUserId);
-            activeUsers.set(userId, { ...user, status: 'available' });
+            user.status = 'available';
 
             //  Notify other user
             await sendPushNotification(fcmTokens, {
