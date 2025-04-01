@@ -37,6 +37,12 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
             const otherUserSocketId = otherUser.activeCalls.get(userId).socketId;
             const transport = transports.get(transportId);
             const producer = await transport.produce({ kind, rtpParameters, appData });
+
+            //  Setup handler to intercept change score event
+            producer.on('score', (scoreData) => {
+                io.to(socket.id).emit('score-changed', { score: scoreData[0].score });
+            });
+
             producers.set(producer.id, producer);
 
             //  Add new producer to user
@@ -99,6 +105,11 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
 
             consumer.on('producerresume', () => {
                 io.to(socket.id).emit('producer-resumed', { kind: consumer.kind });
+            });
+
+            //  Setup handler to intercept change score event
+            consumer.on('score', (scoreData) => {
+                io.to(socket.id).emit('score-changed', { score: scoreData.score });
             });
 
             consumers.set(consumer.id, consumer);
