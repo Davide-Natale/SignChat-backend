@@ -12,6 +12,7 @@ const usersRoutes = require('./routes/usersRoutes');
 const contactsRoutes = require('./routes/contacstRoutes');
 const callsRoutes = require('./routes/callsRoutes');
 const tokensRoutes = require('./routes/tokensRoutes');
+const downloadsRoutes = require('./routes/downloadsRoutes');
 const redisClient = require('./config/redisClient');
 const { initMediaSoup } = require('./config/mediaSoup');
 const { initWebSocket } = require('./config/webSocket');
@@ -33,6 +34,7 @@ app.use('/api', usersRoutes);
 app.use('/api', contactsRoutes);
 app.use('/api', callsRoutes);
 app.use('/api', tokensRoutes);
+app.use('/api', downloadsRoutes);
 
 (async () => {
   try {

@@ -1,3 +1,5 @@
+'use strict';
+
 const { Sequelize } = require('sequelize');
 const Call = require('../models/call');
 const Contact = require("../models/contact");

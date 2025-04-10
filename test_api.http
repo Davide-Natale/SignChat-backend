@@ -209,3 +209,7 @@ Content-Type: application/json
 {
     "expoToken": "ExponentPushToken[1234_abcd]"
 }
+
+###
+
+GET http://localhost:3000/api/downloads/app?version=latest

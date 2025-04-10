@@ -1,3 +1,5 @@
+'use strict';
+
 const Token = require('../models/token');
 const { validationResult } = require('express-validator');
 
