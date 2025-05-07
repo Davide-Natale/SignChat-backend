@@ -1,4 +1,3 @@
-import os
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -49,6 +48,5 @@ while True:
 
         tts = gTTS(text=predicted_text, lang='en')
         tts.save('gesture_audio.mp3')
-        os.system("mpg321 gesture_audio.mp3")
 
 cap.release()

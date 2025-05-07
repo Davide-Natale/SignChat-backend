@@ -15,7 +15,7 @@ service-account-key.json
 downloads/
 
 # Python Virtual Environment
-my_env
+.venv
 
 # Python cache
 __pycache__
