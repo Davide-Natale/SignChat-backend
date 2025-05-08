@@ -100,6 +100,19 @@ function initWebSocket(server, router) {
     //  Reject Video Call
     socket.on('reject-call', onRejectCall);
 
+    //  Update Preference
+    socket.on('update-preference', ({ type, value }) => {
+      if(!activeUsers.has(userId)) return;
+      const userData = activeUsers.get(userId);
+
+      //  Update specific preference type
+      if(type === 'accessibility') {
+        userData.useAccessibility = value;
+      }
+
+      console.log(activeUsers);
+    });
+
     //  User Disconnection
     socket.on('disconnect', () => {
       if(activeUsers.has(userId)) {
