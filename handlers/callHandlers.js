@@ -9,7 +9,7 @@ const Call = require('../models/call');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const { Sequelize } = require("sequelize");
-const { createTransport } = require('../config/mediaSoup');
+const { createTransport, createPlainTransport } = require('../config/mediaSoup');
 
 dayjs.extend(utc);
 
@@ -326,6 +326,13 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
                     transports.delete(transportId);
                 });
 
+                if(userCall.useAccessibility) {
+                    const plainTransport = transports.get(user.accessibilityTransportId);
+                    plainTransport.close();
+                    transports.delete(user.accessibilityTransportId);
+                    delete user.accessibilityTransportId;
+                }
+
                 //  Delete all producers and consumers associated to user
                 user.producerIds.forEach(producerId => { producers.delete(producerId); });
                 user.consumerIds.forEach(consumerId => { consumers.delete(consumerId); });
@@ -335,11 +342,22 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
                 user.consumerIds = [];
 
                 //  Close and delete all transports associated to otherUser
+                const otherUserCall = otherUser.activeCalls.get(userId);
+                otherUserSocketId = otherUserCall.socketId;
+
                 otherUser.transportIds.forEach(transportId => {
                     const transport = transports.get(transportId);
                     transport.close();
                     transports.delete(transportId);
+                    
                 });
+
+                if(otherUserCall.useAccessibility) {
+                    const plainTransport = transports.get(otherUser.accessibilityTransportId);
+                    plainTransport.close();
+                    transports.delete(otherUser.accessibilityTransportId);
+                    delete otherUser.accessibilityTransportId;
+                }
 
                 //  Delete all producers and consumers associated to otherUser
                 otherUser.producerIds.forEach(producerId => { producers.delete(producerId); });
@@ -353,8 +371,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
                 user.activeCalls.delete(otherUserId);
                 activeUsers.set(userId, { ...user, status: 'available', isReadyToConsume: false });
 
-                const otherUserCall = otherUser.activeCalls.get(userId);
-                otherUserSocketId = otherUserCall.socketId
                 otherUser.activeCalls.delete(userId);
                 activeUsers.set(otherUserId, { ...otherUser, status: 'available', isReadyToConsume: false });
             }
@@ -376,6 +392,8 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
     };
 
     const onAnswerCall = async ({ callId, callerUserId, deviceId }) => {
+        let videoPlainTransport;
+        let audioPlainTransport;
         const targetUser = activeUsers.get(userId);
         const callerUser = activeUsers.get(callerUserId);
     
@@ -414,23 +432,52 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             transports.set(sendTransport.id, sendTransport);
             transports.set(recvTransport.id, recvTransport);
 
+            const isAccessibilityCall = targetUser.useAccessibility !== callerUser.useAccessibility;
+
+            if(isAccessibilityCall) {
+                videoPlainTransport = await createPlainTransport(router, 'send');
+
+                //  TODO: check if this is the correct way to create the audioPlainTransport
+                audioPlainTransport = await createPlainTransport(router, 'recv');
+                transports.set(videoPlainTransport.id, videoPlainTransport);
+                transports.set(audioPlainTransport.id, audioPlainTransport);
+            }
+
             //  Update caller user status and corresponding active call
             const callerUserCall = callerUser.activeCalls.get(userId);
             const callerUserSocketId = callerUserCall.socketId;
             clearTimeout(callerUserCall.timeout);
             delete callerUserCall.timeout;
             callerUserCall.status = 'ongoing';
+            callerUserCall.useAccessibility = isAccessibilityCall;
             callerUser.status = 'busy';
+
+            if (isAccessibilityCall) {
+                callerUser.accessibilityTransportId = callerUser.useAccessibility ? videoPlainTransport.id : 
+                    audioPlainTransport.id;
+            }
 
             //  Update target user status and add call to active calls
             targetUser.activeCalls.set(callerUserId, {
                 callId,
                 socketId: socket.id,
-                status: 'ongoing'
+                status: 'ongoing',
+                useAccessibility: isAccessibilityCall
             });
 
             targetUser.transportIds.push(sendTransport.id, recvTransport.id);
             targetUser.status = 'busy';
+
+            if (isAccessibilityCall) {
+                targetUser.accessibilityTransportId = targetUser.useAccessibility ? videoPlainTransport.id : 
+                    audioPlainTransport.id;
+            }
+
+            //  TODO: remove this
+            console.log('Active users: ');
+            activeUsers.forEach((value, key) => {
+                console.log(key, value);
+            });
 
             //  Notify both caller and target users
             if(fcmTokens.length > 0) {

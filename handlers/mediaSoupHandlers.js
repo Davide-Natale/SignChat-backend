@@ -1,5 +1,7 @@
 'use strict';
 
+const { consumeAndRecord } = require("../config/mediaSoup");
+
 module.exports = (io, activeUsers, socket, router, transports, producers, pendingProducers, consumers) => {
     const userId = socket.user.id;
 
@@ -32,7 +34,7 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
                 return;
             }
 
-            const [otherUserId, _]= callEntry;
+            const [otherUserId, userCall]= callEntry;
             const otherUser = activeUsers.get(otherUserId);
             const otherUserSocketId = otherUser.activeCalls.get(userId).socketId;
             const transport = transports.get(transportId);
@@ -47,6 +49,17 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
 
             //  Add new producer to user
             user.producerIds.push(producer.id);
+
+            if(userCall.useAccessibility && user.useAccessibility && kind === 'video') {
+                const plainTransport = transports.get(user.accessibilityTransportId);
+                const consumer = await consumeAndRecord(router, plainTransport, producer);
+
+                consumers.set(consumer.id, consumer);
+                user.consumerIds.push(consumer.id);
+                
+                //  TODO: remove this
+                console.log('User: ', user);
+            }
 
             if(otherUser.isReadyToConsume) {
                 io.to(otherUserSocketId).emit('new-producer', { producerId: producer.id });
