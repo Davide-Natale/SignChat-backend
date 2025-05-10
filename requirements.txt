@@ -4,4 +4,4 @@ pandas
 numpy
 tensorflow
 pose-format
-gTTS
+pyttsx3

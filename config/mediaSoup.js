@@ -90,6 +90,7 @@ const consumeAndRecord = async (router, transport, producer) => {
   const routerCodec = router.rtpCapabilities.codecs.find(
     codec => codec.kind === producer.kind
   );
+
   codecs.push(routerCodec);
 
   const rtpCapabilities = {
@@ -121,10 +122,10 @@ const consumeAndRecord = async (router, transport, producer) => {
     console.log("[Mediasoup] Transport chiuso. Fermando la registrazione...");
 
     // Kill FFmpeg
-    if (ffmpeg) {
+    /*if (ffmpeg) {
       console.log("[FFMPEG] Interrompendo il processo di registrazione...");
       ffmpeg.kill();
-    }
+    }*/
   });
 
   setTimeout(async () => {

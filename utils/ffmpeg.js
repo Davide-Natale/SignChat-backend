@@ -1,15 +1,8 @@
 'use strict';
 
-const fs = require('fs');
 const child_process = require('child_process');
 const { EventEmitter } = require('events');
 const { createSdpText, convertStringToStream } = require('./sdp');
-
-const RECORD_FILE_LOCATION_PATH = './files';
-
-if (!fs.existsSync(RECORD_FILE_LOCATION_PATH)) {
-  fs.mkdirSync(RECORD_FILE_LOCATION_PATH, { recursive: true });
-}
 
 module.exports = class FFmpeg {
   constructor(rtpParameters) {
@@ -56,18 +49,16 @@ module.exports = class FFmpeg {
   }
 
   get _commandArgs() {
-    const outputPath = `${RECORD_FILE_LOCATION_PATH}/${this._rtpParameters.fileName}.mkv`;
-
     return [
       '-loglevel', 'warning',
-      '-protocol_whitelist', 'pipe,udp,rtp',
+      '-protocol_whitelist', 'pipe,udp,rtp,file,crypto,tcp',
       '-fflags', '+genpts',
       '-f', 'sdp',
       '-i', 'pipe:0',
-      '-map', '0:v:0',
-      '-vf', 'transpose=2',
-      '-c:v', 'libvpx',
-      outputPath
+      '-f', 'image2pipe',
+      '-vf', 'fps=10',
+      '-vcodec', 'mjpeg',
+      'tcp://127.0.0.1:9001'
     ];
   }
 };
