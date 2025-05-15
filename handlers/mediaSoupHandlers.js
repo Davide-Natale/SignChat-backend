@@ -1,6 +1,6 @@
 'use strict';
 
-const { consumeAndRecord } = require("../config/mediaSoup");
+const { consumeAndProduce } = require('../utils/accessibility');
 
 module.exports = (io, activeUsers, socket, router, transports, producers, pendingProducers, consumers) => {
     const userId = socket.user.id;
@@ -50,25 +50,41 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
             //  Add new producer to user
             user.producerIds.push(producer.id);
 
-            if(userCall.useAccessibility && user.useAccessibility && kind === 'video') {
-                const plainTransport = transports.get(user.accessibilityTransportId);
-                const consumer = await consumeAndRecord(router, plainTransport, producer);
+            if (userCall.useAccessibility && user.useAccessibility && kind === 'video') {
+                const videoPlainTransport = transports.get(user.videoAccessibilityTransportId);
+                const audioPlainTransport = transports.get(user.audioAccessibilityTransportId);
+                const { accessibilityConsumer, accessibilityProducer } = await consumeAndProduce(router, videoPlainTransport, audioPlainTransport, producer);
 
-                consumers.set(consumer.id, consumer);
-                user.consumerIds.push(consumer.id);
-                
-                //  TODO: remove this
-                console.log('User: ', user);
+                consumers.set(accessibilityConsumer.id, accessibilityConsumer);
+                producers.set(accessibilityProducer.id, accessibilityProducer);
+
+                user.consumerIds.push(accessibilityConsumer.id);
+                user.producerIds.push(accessibilityProducer.id);
+
+                const accessibilityProducerInfo = { producerId: accessibilityProducer.id, accessibility: true };
+
+                if (otherUser.isReadyToConsume) {
+                    io.to(otherUserSocketId).emit('new-producer', accessibilityProducerInfo);
+                } else {
+                    if (!pendingProducers.has(otherUserId)) {
+                        pendingProducers.set(otherUserId, [accessibilityProducerInfo]);
+                    } else {
+                        const otherUserPendingProducers = pendingProducers.get(otherUserId);
+                        otherUserPendingProducers.push(accessibilityProducerInfo);
+                    }
+                }
             }
+            
+            const producerInfo = { producerId: producer.id, accessibility: false };
 
             if(otherUser.isReadyToConsume) {
-                io.to(otherUserSocketId).emit('new-producer', { producerId: producer.id });
+                io.to(otherUserSocketId).emit('new-producer', producerInfo);
             } else {
                 if(!pendingProducers.has(otherUserId)) {
-                    pendingProducers.set(otherUserId, [producer.id]);
+                    pendingProducers.set(otherUserId, [producerInfo]);
                 } else {
                     const otherUserPendingProducers = pendingProducers.get(otherUserId);
-                    otherUserPendingProducers.push(producer.id);
+                    otherUserPendingProducers.push(producerInfo);
                 }
             }
 
@@ -162,8 +178,8 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
         user.isReadyToConsume = true;
 
         if(pendingProducers.has(userId)) {
-            pendingProducers.get(userId).forEach(producerId => {
-                io.to(socket.id).emit('new-producer', { producerId });
+            pendingProducers.get(userId).forEach(({producerId, accessibility }) => {
+                io.to(socket.id).emit('new-producer', { producerId, accessibility });
             });
 
             pendingProducers.delete(userId);

@@ -1,8 +1,9 @@
 import os
-import time
+import io
 import numpy as np
 import tensorflow as tf
-import pyttsx3
+from gtts import gTTS
+from pydub import AudioSegment
 from video_to_text.utils import load_labels_mapping, preprocess_pose
 from pose_format.utils.holistic import load_holistic
 
@@ -17,11 +18,10 @@ model_path = os.path.join(script_dir, MODEL_FILE_NAME)
 # Loading labels mapping
 index_to_label = load_labels_mapping(csv_path)
 
-
 # Loading model
 model = tf.keras.models.load_model(model_path)
 
-def process_gesture(frame_buffer, fps, width, height):
+def process_gesture(frame_buffer, fps, width, height, ffmpeg_socket, last_predicted_text):
     # Translate framse to pose
     pose = load_holistic(frame_buffer,
                             fps=fps,
@@ -37,10 +37,29 @@ def process_gesture(frame_buffer, fps, width, height):
     label = np.argmax(prediction)
     predicted_text = index_to_label[label]
 
-    timestamp = int(time.time())
-    audio_filename = f'gesture_audio_{timestamp}.mp3'
+    print(f'Last Prediction: {last_predicted_text}')
+    print(f'Prediction: {predicted_text}')
 
-    engine = pyttsx3.init()
+    if predicted_text == last_predicted_text:
+        return last_predicted_text
+    
+    last_predicted_text = predicted_text
 
-    engine.save_to_file(predicted_text, audio_filename)
-    engine.runAndWait()
+    silence_start = (np.zeros(48000 * 2 // 10, dtype=np.int16)).tobytes()
+    ffmpeg_socket.sendall(silence_start)
+
+    tts = gTTS(predicted_text, lang='en')
+    mp3_fp = io.BytesIO()
+    tts.write_to_fp(mp3_fp)
+    mp3_fp.seek(0)
+
+    audio = AudioSegment.from_file(mp3_fp, format="mp3")
+    audio = audio.set_frame_rate(48000).set_channels(2).set_sample_width(2)
+
+    pcm_data = audio.raw_data
+    ffmpeg_socket.sendall(pcm_data)
+
+    silence_end = (np.zeros(48000 * 2 // 5, dtype=np.int16)).tobytes()
+    ffmpeg_socket.sendall(silence_end)
+
+    return predicted_text

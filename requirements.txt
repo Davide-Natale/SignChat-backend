@@ -4,4 +4,5 @@ pandas
 numpy
 tensorflow
 pose-format
-pyttsx3
+gTTS
+pydub

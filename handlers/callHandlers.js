@@ -326,11 +326,17 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
                     transports.delete(transportId);
                 });
 
-                if(userCall.useAccessibility) {
-                    const plainTransport = transports.get(user.accessibilityTransportId);
-                    plainTransport.close();
-                    transports.delete(user.accessibilityTransportId);
-                    delete user.accessibilityTransportId;
+                if(userCall.useAccessibility && user.useAccessibility) {
+                    const audioplainTransport = transports.get(user.audioAccessibilityTransportId);
+                    const videoPlainTransport = transports.get(user.videoAccessibilityTransportId);
+
+                    audioplainTransport.close();
+                    videoPlainTransport.close();
+                    transports.delete(user.audioAccessibilityTransportId);
+                    transports.delete(user.videoAccessibilityTransportId);
+
+                    delete user.audioAccessibilityTransportId;
+                    delete user.videoAccessibilityTransportId;
                 }
 
                 //  Delete all producers and consumers associated to user
@@ -352,11 +358,17 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
                     
                 });
 
-                if(otherUserCall.useAccessibility) {
-                    const plainTransport = transports.get(otherUser.accessibilityTransportId);
-                    plainTransport.close();
-                    transports.delete(otherUser.accessibilityTransportId);
-                    delete otherUser.accessibilityTransportId;
+                if(otherUserCall.useAccessibility && otherUser.useAccessibility) {
+                    const audioplainTransport = transports.get(otherUser.audioAccessibilityTransportId);
+                    const videoPlainTransport = transports.get(otherUser.videoAccessibilityTransportId);
+
+                    audioplainTransport.close();
+                    videoPlainTransport.close();
+                    transports.delete(otherUser.audioAccessibilityTransportId);
+                    transports.delete(otherUser.videoAccessibilityTransportId);
+
+                    delete otherUser.audioAccessibilityTransportId;
+                    delete otherUser.videoAccessibilityTransportId;
                 }
 
                 //  Delete all producers and consumers associated to otherUser
@@ -435,10 +447,10 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             const isAccessibilityCall = targetUser.useAccessibility !== callerUser.useAccessibility;
 
             if(isAccessibilityCall) {
+                //  Create plain transports for accessibility user
                 videoPlainTransport = await createPlainTransport(router, 'send');
-
-                //  TODO: check if this is the correct way to create the audioPlainTransport
                 audioPlainTransport = await createPlainTransport(router, 'recv');
+
                 transports.set(videoPlainTransport.id, videoPlainTransport);
                 transports.set(audioPlainTransport.id, audioPlainTransport);
             }
@@ -452,9 +464,9 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             callerUserCall.useAccessibility = isAccessibilityCall;
             callerUser.status = 'busy';
 
-            if (isAccessibilityCall) {
-                callerUser.accessibilityTransportId = callerUser.useAccessibility ? videoPlainTransport.id : 
-                    audioPlainTransport.id;
+            if (isAccessibilityCall && callerUser.useAccessibility) {
+                callerUser.videoAccessibilityTransportId = videoPlainTransport.id;
+                callerUser.audioAccessibilityTransportId = audioPlainTransport.id;
             }
 
             //  Update target user status and add call to active calls
@@ -468,16 +480,10 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             targetUser.transportIds.push(sendTransport.id, recvTransport.id);
             targetUser.status = 'busy';
 
-            if (isAccessibilityCall) {
-                targetUser.accessibilityTransportId = targetUser.useAccessibility ? videoPlainTransport.id : 
-                    audioPlainTransport.id;
+            if (isAccessibilityCall && targetUser.useAccessibility) {
+                targetUser.videoAccessibilityTransportId = videoPlainTransport.id; 
+                targetUser.audioAccessibilityTransportId = audioPlainTransport.id;
             }
-
-            //  TODO: remove this
-            console.log('Active users: ');
-            activeUsers.forEach((value, key) => {
-                console.log(key, value);
-            });
 
             //  Notify both caller and target users
             if(fcmTokens.length > 0) {
