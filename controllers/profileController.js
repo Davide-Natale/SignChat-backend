@@ -8,8 +8,9 @@ const { validationResult } = require('express-validator');
 const sequelize = require("../config/database");
 const jwt = require('jsonwebtoken');
 const dayjs = require('dayjs');
-const fs = require('fs');
 const path = require('path');
+const supabase = require('../config/supabase');
+const { v4: uuidv4 } = require('uuid');
 const Contact = require('../models/contact');
 const Call = require('../models/call');
 
@@ -168,15 +169,12 @@ exports.deleteProfile = async (req, res) => {
         //  Save user email before deletion to send email confirmation
         const email = user.email;
 
-        //  Delete profile image if exists
-        if(user.imageProfile) {
-            const imageFileName = user.imageProfile.split('/uploads/')[1];
-            const imageFilePath = path.join(__dirname, '..', 'uploads', imageFileName);
+        //  Delete profile image file
+        const imagePath = user.imageProfile.split(`/object/public/${process.env.SUPABASE_BUCKET}/`)[1];
 
-            if(fs.existsSync(imageFilePath)) {
-                fs.unlinkSync(imageFilePath);
-            }
-        } 
+        if (imagePath) {
+            await supabase.storage.from(process.env.SUPABASE_BUCKET).remove([imagePath]);
+        }
 
         //  Delete user from database
         await user.destroy();
@@ -210,32 +208,48 @@ exports.uploadProfileImage = async (req, res) => {
         return res.status(400).json({ message: 'No file uploaded.' });
     }
 
-    const imagePath = req.file.path;
-    const imageUrl = `http://${process.env.SERVER_IP}:${process.env.PORT}/uploads/` +
-        imagePath.split(path.sep + 'uploads' + path.sep)[1];
+    const imagePath = `images/${uuidv4()}${path.extname(req.file.originalname)}`;
 
     try {
         //  Search user in the database
         const user = await User.findByPk(userId);
-        if(!user) return res.status(404).json({ message: 'User not found.' });
+        if (!user) return res.status(404).json({ message: 'User not found.' });
 
+        // Upload to Supabase
+        const { error: uploadError } = await supabase.storage
+            .from(process.env.SUPABASE_BUCKET)
+            .upload(imagePath, req.file.buffer, {
+                contentType: req.file.mimetype,
+                upsert: true,
+            });
+
+        if (uploadError) {
+            return res.status(500).json({ message: 'Error uploading image to Supabase.', error: uploadError });
+        }
+
+        // Get public URL
+        const { data: publicUrlData } = supabase.storage
+            .from(process.env.SUPABASE_BUCKET)
+            .getPublicUrl(imagePath);
+
+        const imageUrl = publicUrlData.publicUrl;
+        
         //  Delete old profile image, if exists
-        if(user.imageProfile) {
-            const imageFileName = user.imageProfile.split('/uploads/')[1];
-            const imageFilePath = path.join(__dirname, '..', 'uploads', imageFileName);
-
-            if(fs.existsSync(imageFilePath)) {
-                fs.unlinkSync(imageFilePath);
+        if (user.imageProfile) {
+            const oldImagePath = user.imageProfile.split(`/object/public/${process.env.SUPABASE_BUCKET}/`)[1];
+            if (oldImagePath) {
+                await supabase.storage.from(process.env.SUPABASE_BUCKET).remove([oldImagePath]);
             }
         }
 
         //  Update user
         await user.update({ imageProfile: imageUrl });
 
-        res.json({ message: 'Profile image uploaded successfully.'});
+        res.json({ message: 'Profile image uploaded successfully.' });
     } catch (error) {
         res.status(500).json({ message: 'Error uploading profile image.', error });
     }
+    
 };
 
 exports.deleteProfileImage = async (req, res) => {
@@ -252,11 +266,10 @@ exports.deleteProfileImage = async (req, res) => {
         }
 
         //  Delete profile image file
-        const imageFileName = user.imageProfile.split('/uploads/')[1];
-        const imageFilePath = path.join(__dirname, '..', 'uploads', imageFileName);
+        const imagePath = user.imageProfile.split(`/object/public/${process.env.SUPABASE_BUCKET}/`)[1];
 
-        if(fs.existsSync(imageFilePath)) {
-            fs.unlinkSync(imageFilePath);
+        if (imagePath) {
+            await supabase.storage.from(process.env.SUPABASE_BUCKET).remove([imagePath]);
         }
 
         //  Update user

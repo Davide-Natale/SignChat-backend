@@ -1,12 +1,6 @@
 'use strict';
 
-const admin = require('firebase-admin');
-const serviceAccount = require('../service-account-key.json');
-
-//  Initialize Firebase Admin
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
+const { messaging } = require('../config/firebase');
 
 const sendPushNotification = async (fcmTokens, data) => {
     const cleanedData = Object.fromEntries(
@@ -21,7 +15,7 @@ const sendPushNotification = async (fcmTokens, data) => {
         }
     };
 
-    await admin.messaging().sendEachForMulticast(message);
+    await messaging.sendEachForMulticast(message);
 };
 
 module.exports = sendPushNotification;

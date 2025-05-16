@@ -1,18 +1,8 @@
 'use strict';
 
 const multer = require('multer');
-const path = require('path');
 
-const storage = multer.diskStorage({
-    destination: (_req, _file, cb) => {
-        const uploadDir = path.join(__dirname, '..', 'uploads');
-        cb(null, uploadDir);
-    },
-    filename: (_req, file, cb) => {
-        const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueName + path.extname(file.originalname));
-    }
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (_req, file, cb) => {
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
