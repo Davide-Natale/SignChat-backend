@@ -25,7 +25,6 @@ const port = process.env.PORT
 //  Set-up middlewares
 app.use(morgan('dev'));
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
 
 //  Set-up routes
 app.use('/api/auth', authRoutes);
