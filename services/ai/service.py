@@ -59,9 +59,9 @@ def handle_connection(client_socket, ffmpeg_socket):
         client_socket.close()
 
 TARGET_FRAMES = 37
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
 PORT = 9001
-FFMPEG_HOST = '127.0.0.1'
+FFMPEG_HOST = 'node'
 FFMPEG_PORT = 9002
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

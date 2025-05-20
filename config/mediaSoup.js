@@ -38,7 +38,8 @@ const createTransport = async (router) => {
       [
         {
           protocol: 'udp', 
-          ip: process.env.SERVER_IP,
+          ip: '0.0.0.0',
+          announcedAddress: process.env.SERVER_IP,
           portRange: {
             min: 40000,
             max: 49999

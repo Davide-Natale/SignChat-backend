@@ -1,0 +1,45 @@
+services:
+  node:
+    build: .
+    ports:
+      - "3000:3000"
+      - "40000-49999:40000-49999/udp"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+      - translator
+    networks:
+      - backend-network
+
+  translator:
+    build: ./services/ai
+    networks:
+      - backend-network
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend-network
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+
+volumes:
+  pgdata:

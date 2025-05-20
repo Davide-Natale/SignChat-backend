@@ -29,7 +29,7 @@ const getFFmpegArgs = (parameters, action) => {
       '-f', 'image2pipe',
       '-vf', 'fps=15',
       '-vcodec', 'mjpeg',
-      `tcp://127.0.0.1:${parameters.outputPort}`
+      `tcp://translator:${parameters.outputPort}`
     ];
   } else if (parameters.kind === 'audio' && action === 'send') {
     const codec = parameters.codecs[0];
@@ -43,7 +43,7 @@ const getFFmpegArgs = (parameters, action) => {
       '-f', 's16le',
       '-ar', '48000',
       '-ac', '2',
-      '-i', `tcp://127.0.0.1:${parameters.inputPort}?listen`,
+      '-i', `tcp://0.0.0.0:${parameters.inputPort}?listen`,
       '-acodec', 'libopus',
       '-ab', '64k',
       '-map', '0:a:0',
