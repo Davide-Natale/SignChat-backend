@@ -70,6 +70,8 @@ const spawnFFmpeg = (parameters, action) => {
     sdpStream.resume();
     sdpStream.pipe(process.stdin);
   }
+
+  return process;
 }
 
 module.exports = { spawnFFmpeg };

@@ -42,7 +42,7 @@ exports.getCalls = async (req, res) => {
                 {
                     model: User,
                     attributes: ['id', 'firstName', 'lastName', 'phone', 'imageProfile'],
-                    where: Sequelize.literal('Call.contactId IS NULL'),
+                    where: Sequelize.where(Sequelize.col('Call.contactId'), null),
                     required: false,
                     as: 'user'
                 },
@@ -85,7 +85,7 @@ exports.getCall = async (req, res) => {
                 {
                     model: User,
                     attributes: ['id', 'firstName', 'lastName', 'phone', 'imageProfile'],
-                    where: Sequelize.literal('Call.contactId IS NULL'),
+                    where: Sequelize.where(Sequelize.col('Call.contactId'), null),
                     required: false,
                     as: 'user'
                 },

@@ -34,18 +34,18 @@ const initMediaSoup = async () => {
 const createTransport = async (router) => {
   try {
     const transport = await router.createWebRtcTransport({
-      listenInfos :
-      [
-        {
-          protocol: 'udp', 
-          ip: '0.0.0.0',
-          announcedAddress: process.env.SERVER_IP,
-          portRange: {
-            min: 40000,
-            max: 49999
+      listenInfos:
+        [
+          {
+            protocol: 'udp',
+            ip: '0.0.0.0',
+            announcedAddress: process.env.SERVER_IP,
+            portRange: {
+              min: 40000,
+              max: 41000
+            }
           }
-        }
-      ]
+        ]
     });
     
     return {

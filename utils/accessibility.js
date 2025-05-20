@@ -62,12 +62,20 @@ const consumeAndProduce = async (router, videoPlainTransport, audioPlainTranspor
     outputPort: audioRtpPort
   }
 
-  spawnFFmpeg(videoFFmpegParameters, 'recv');
-  spawnFFmpeg(audioFFmpegParameters, 'send');
+  const videoFFmpeg = spawnFFmpeg(videoFFmpegParameters, 'recv');
+  const audioFFmpeg = spawnFFmpeg(audioFFmpegParameters, 'send');
 
   const accessibilityProducer = await audioPlainTransport.produce({
     kind: 'audio',
     rtpParameters: audioRtpParameters
+  });
+
+  accessibilityConsumer.on("transportclose", () => {
+    videoFFmpeg.kill('SIGINT');
+  });
+
+  accessibilityProducer.on("transportclose", () => {
+    audioFFmpeg.kill('SIGINT');
   });
 
   setTimeout(async () => {
