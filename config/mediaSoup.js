@@ -42,7 +42,7 @@ const createTransport = async (router) => {
             announcedAddress: process.env.SERVER_IP,
             portRange: {
               min: 40000,
-              max: 41999
+              max: 40099
             }
           }
         ]

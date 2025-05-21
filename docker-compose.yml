@@ -3,7 +3,7 @@ services:
     build: .
     ports:
       - "3000:3000"
-      - "40000-41999:40000-41999/udp"
+      - "40000-40099:40000-40099/udp"
     env_file:
       - .env
     depends_on:
