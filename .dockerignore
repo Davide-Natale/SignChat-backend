@@ -1,4 +1,15 @@
+# Dependencies
 node_modules
-.venv
+
+# Environment variables
 .env
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Python Virtual Environment
+.venv
+
+# Python cache
 __pycache__

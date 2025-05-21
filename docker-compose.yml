@@ -3,7 +3,7 @@ services:
     build: .
     ports:
       - "3000:3000"
-      - "40000-41000:40000-41000/udp"
+      - "40000-41999:40000-41999/udp"
     env_file:
       - .env
     depends_on:
@@ -33,6 +33,9 @@ services:
 
   redis:
     image: redis
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - redisdata:/data
     ports:
       - "6379:6379"
     networks:
@@ -43,3 +46,4 @@ networks:
 
 volumes:
   pgdata:
+  redisdata:

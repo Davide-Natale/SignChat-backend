@@ -10,7 +10,6 @@ const producers = new Map();
 const pendingProducers = new Map();
 const consumers = new Map();
 
-//  TODO: remove logging when test completed
 function initWebSocket(server, router) {
   //  Create WebSocket instance
   io = new Server(server);
@@ -42,9 +41,6 @@ function initWebSocket(server, router) {
         userData.socketIds.push(socket.id);
       }
     }
-
-    console.log(`User connected: ${userId} (${socket.id})`);
-    console.log(activeUsers);
 
     const { 
       onGetRouterRtpCapabilities, 
@@ -109,8 +105,6 @@ function initWebSocket(server, router) {
       if(type === 'accessibility') {
         userData.useAccessibility = value;
       }
-
-      console.log(activeUsers);
     });
 
     //  User Disconnection
@@ -125,9 +119,6 @@ function initWebSocket(server, router) {
           //  Remove userId from active users if no more socketId are present
           activeUsers.delete(userId);
         }
-        
-        console.log(`Utente disconnected: ${userId}`);
-        console.log(activeUsers);
       }
     });
   });

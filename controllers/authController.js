@@ -33,13 +33,12 @@ exports.register = async (req, res) => {
     //  Generate JWT tokens for the user
     const tokens = generateTokens(newUser);
 
-    /*  TODO: uncomment on production
     //  Send confirmation email for registration
     sendEmail({
       to: email, 
       subject: 'Registration Confirmation',
       html: getRegistrationConfirmMessage()
-    }); */
+    });
 
     res.status(201).json({
       message: 'User registered successfully.',

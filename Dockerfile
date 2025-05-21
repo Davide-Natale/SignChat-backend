@@ -13,6 +13,6 @@ RUN npm install
 COPY . .
 
 EXPOSE 3000
-EXPOSE 40000-41000/udp
+EXPOSE 40000-41999/udp
 
 CMD ["npm", "start"]
