@@ -60,7 +60,7 @@ exports.syncToken = async (req, res) => {
         await token.update({ fcmToken });
 
         res.json({
-            message: 'Token synched successfully.',
+            message: 'Token synced successfully.',
             token: {
                 id: token.id,
                 deviceId: token.deviceId,

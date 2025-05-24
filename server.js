@@ -16,6 +16,8 @@ const downloadsRoutes = require('./routes/downloadsRoutes');
 const redisClient = require('./config/redisClient');
 const { initMediaSoup } = require('./config/mediaSoup');
 const { initWebSocket } = require('./config/webSocket');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./docs/swagger');
 
 // Init express
 const app = express();
@@ -34,6 +36,7 @@ app.use('/api', contactsRoutes);
 app.use('/api', callsRoutes);
 app.use('/api', tokensRoutes);
 app.use('/api', downloadsRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 (async () => {
   try {
