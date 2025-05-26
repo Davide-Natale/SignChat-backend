@@ -86,6 +86,114 @@ const options = {
             fcmToken: { type: 'string' }
           }
         },
+        Contact: {
+          type: 'object',
+          required: ['firstName', 'lastName', 'phone'],
+          properties: {
+            firstName: {
+              type: 'string',
+              example: 'Emily'
+            },
+            lastName: {
+              type: 'string',
+              nullable: true,
+              example: 'Carter'
+            },
+            phone: {
+              type: 'string',
+              example: '9876543210'
+            }
+          }
+        },
+        Call: {
+          type: 'object',
+          required: [
+            'id',
+            'phone',
+            'type',
+            'status',
+            'date',
+            'duration',
+            'contact',
+            'user',
+          ],
+          properties: {
+            id: { $ref: '#/components/schemas/Id' },
+            phone: {
+              type: 'string',
+              example: '9876543210',
+            },
+            type: {
+              type: 'string',
+              enum: ['incoming', 'outgoing'],
+              example: 'incoming',
+            },
+            status: {
+              type: 'string',
+              enum: ['completed', 'missed', 'unanswered', 'rejected', 'ongoing'],
+              example: 'missed',
+            },
+            date: {
+              type: 'string',
+              format: 'date-time',
+              example: '2025-01-07T11:45:10.000Z',
+            },
+            duration: {
+              type: 'integer',
+              example: 0,
+            },
+            contact: {
+              nullable: true,
+              allOf: [
+                {
+                  type: 'object',
+                  required: ['id'],
+                  properties: {
+                    id: { $ref: '#/components/schemas/Id' }
+                  },
+                },
+                { $ref: '#/components/schemas/Contact' },
+                {
+                  type: 'object',
+                  required: ['user'],
+                  properties: {
+                    user: {
+                      nullable: true,
+                      type: 'object',
+                      required: ['id', 'imageProfile'],
+                      properties: {
+                        id: { $ref: '#/components/schemas/Id' },
+                        imageProfile: { $ref: '#/components/schemas/ImageProfile' },
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+            user: {
+              nullable: true,
+              type: 'object',
+              required: ['id', 'firstName', 'lastName', 'phone', 'imageProfile'],
+              properties: {
+                id: { $ref: '#/components/schemas/Id' },
+                firstName: {
+                  type: 'string',
+                  example: 'Emily',
+                },
+                lastName: {
+                  type: 'string',
+                  example: 'Carter',
+                },
+                phone: {
+                  type: 'string',
+                  example: '9876543210',
+                },
+                imageProfile: { $ref: '#/components/schemas/ImageProfile' },
+              },
+              example: null
+            },
+          },
+        },
         Message: {
           type: 'object',
           required: ['message'],

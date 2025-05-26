@@ -299,7 +299,6 @@ router.post('/change-password', authenticate, [
         .withMessage('NewPassword parameter must contain at least one of these special characters: @$!%*?&#.')
 ], changePassword);
 
-
 /**
  * @swagger
  * /auth/reset-password/request:

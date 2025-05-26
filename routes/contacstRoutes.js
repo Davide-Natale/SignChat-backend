@@ -7,14 +7,206 @@ const authenticate = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /contacts:
+ *   get:
+ *     summary: Get all contacts 
+ *     description: Retreive all contacts that belong to the authenticated user
+ *     tags:
+ *       - Contacts
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of contacts associated to the authenticated user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - contacts
+ *               properties:
+ *                 contacts:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     allOf:
+ *                       - type: object
+ *                         required:
+ *                           - id
+ *                         properties:
+ *                           id:
+ *                             $ref: '#/components/schemas/Id'
+ *                       - $ref: '#/components/schemas/Contact'
+ *                       - type: object
+ *                         required:
+ *                           - user
+ *                         properties:
+ *                           user:
+ *                             type: object
+ *                             nullable: true
+ *                             required:
+ *                               - id
+ *                               - imageProfile
+ *                             properties: 
+ *                               id:
+ *                                 $ref: '#/components/schemas/Id'
+ *                               imageProfile:
+ *                                 $ref: '#/components/schemas/ImageProfile'
+ *       401:
+ *         description: User unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/contacts', authenticate, getContacts);
 
+/**
+ * @swagger
+ * /contacts/{id}:
+ *   get:
+ *     summary: Get contact by id 
+ *     description: Retreive a specific contact by id that belong to the authenticated user
+ *     tags:
+ *       - Contacts
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           $ref: '#/components/schemas/Id'
+ *     responses:
+ *       200:
+ *         description: Contact information associated to the authenticated user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - contact
+ *               properties:
+ *                 contact:
+ *                   type: object
+ *                   allOf:
+ *                     - type: object
+ *                       required:
+ *                         - id
+ *                       properties:
+ *                         id:
+ *                           $ref: '#/components/schemas/Id'
+ *                     - $ref: '#/components/schemas/Contact'
+ *                     - type: object
+ *                       required:
+ *                         - user
+ *                       properties:
+ *                         user:
+ *                           type: object
+ *                           nullable: true
+ *                           required:
+ *                             - id
+ *                             - imageProfile
+ *                           properties: 
+ *                             id:
+ *                               $ref: '#/components/schemas/Id'
+ *                             imageProfile:
+ *                               $ref: '#/components/schemas/ImageProfile'
+ *       401:
+ *         description: User unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       404:
+ *         description: Contact not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       422:
+ *         description: Invalid parameters
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/contacts/:id', authenticate, [
     param('id')
         .isInt({ min: 1 })
         .withMessage('Id parameter must be a positive number.')
 ], getContact);
 
+/**
+ * @swagger
+ * /contacts:
+ *   post:
+ *     summary: Create a new contact 
+ *     description: Create a new contact associated to the authenticated user
+ *     tags:
+ *       - Contacts
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: New contact information
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Contact'
+ *     responses:
+ *       201:
+ *         description: New contact created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf: 
+ *                 - $ref: '#/components/schemas/Message'
+ *                 - type: object
+ *                   required: 
+ *                     - contact
+ *                   properties: 
+ *                     contact:
+ *                       type: object
+ *                       allOf:
+ *                         - type: object
+ *                           required:
+ *                             - id
+ *                           properties:
+ *                             id:
+ *                               $ref: '#/components/schemas/Id'
+ *                         - $ref: '#/components/schemas/Contact'
+ *       401:
+ *         description: User unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       409:
+ *         description: Contact already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       422:
+ *         description: Invalid parameters
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/contacts', authenticate, [
     body('firstName')
         .exists()
@@ -40,6 +232,78 @@ router.post('/contacts', authenticate, [
         .withMessage('Phone parameter must contain only numeric characters.')
 ], createContact);
 
+/**
+ * @swagger
+ * /contacts/{id}:
+ *   put:
+ *     summary: Update a contact by id
+ *     description: Update contact information by id associated to the authenticated user
+ *     tags:
+ *       - Contacts
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           $ref: '#/components/schemas/Id'
+ *     requestBody:
+ *       description: Updated contact information
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Contact'
+ *     responses:
+ *       200:
+ *         description: Contact updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf: 
+ *                 - $ref: '#/components/schemas/Message'
+ *                 - type: object
+ *                   required: 
+ *                     - contact
+ *                   properties: 
+ *                     contact:
+ *                       type: object
+ *                       allOf:
+ *                         - type: object
+ *                           required:
+ *                             - id
+ *                           properties:
+ *                             id:
+ *                               $ref: '#/components/schemas/Id'
+ *                         - $ref: '#/components/schemas/Contact'
+ *       401:
+ *         description: User unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       404:
+ *         description: Contact not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       409:
+ *         description: Contact phone number already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       422:
+ *         description: Invalid parameters
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/contacts/:id', authenticate, [
     param('id')
         .isInt({ min: 1 })
@@ -68,12 +332,128 @@ router.put('/contacts/:id', authenticate, [
         .withMessage('Phone parameter must contain only numeric characters.')
 ], updateContact);
 
+/**
+ * @swagger
+ * /contacts/{id}:
+ *   delete:
+ *     summary: Delete a contact by id
+ *     description: Delete a contact by id associated to the authenticated user
+ *     tags:
+ *       - Contacts
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           $ref: '#/components/schemas/Id'
+ *     responses:
+ *       200:
+ *         description: Contact deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       401:
+ *         description: User unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       404:
+ *         description: Contact not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       422:
+ *         description: Invalid parameters
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/contacts/:id', authenticate, [
     param('id')
         .isInt({ min: 1 })
         .withMessage('Id parameter must be a positive number.')
 ], deleteContact);
 
+/**
+ * @swagger
+ * /contacts/sync:
+ *   post:
+ *     summary: Sync local contacts information
+ *     description: Sync local contacts information to contacts associated to the authenticated user
+ *     tags:
+ *       - Contacts
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: Local contacts to be synched
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newContacts
+ *               - updatedContacts
+ *               - deletedContacts
+ *             properties:
+ *               newContacts:
+ *                 type: array
+ *                 description: List of local new contacts to be created (can be empty)
+ *                 items:
+ *                   $ref: '#/components/schemas/Contact'
+ *               updatedContacts:
+ *                 type: array
+ *                 description: List of local updated contacts to be synced (can be empty)
+ *                 items:  
+ *                   $ref: '#/components/schemas/Contact'
+ *               deletedContacts:
+ *                 type: array
+ *                 description: List of local contact phone numbers to be deleted (can be empty)
+ *                 items:
+ *                   type: string
+ *                   example: 1234567890
+ *     responses:
+ *       200:
+ *         description: Contacts synchronized successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       401:
+ *         description: User unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       404:
+ *         description: Contact not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       409:
+ *         description: Contact already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       422:
+ *         description: Invalid parameters
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/contacts/sync', authenticate, [
     body('newContacts')
         .exists()
