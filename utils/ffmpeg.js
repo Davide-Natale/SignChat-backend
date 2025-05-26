@@ -27,7 +27,7 @@ const getFFmpegArgs = (parameters, action) => {
       '-f', 'sdp',
       '-i', 'pipe:0',
       '-f', 'image2pipe',
-      '-vf', 'fps=15',
+      '-vf', 'fps=30',
       '-vcodec', 'mjpeg',
       `tcp://translator:${parameters.outputPort}`
     ];

@@ -1,6 +1,7 @@
 import socket
 import cv2
 import numpy as np
+from collections import deque
 from video_to_text.translate import process_gesture
 
 def open_ffmpeg_connection(host, port):
@@ -15,12 +16,15 @@ def close_ffmpeg_connection(ffmpeg_socket):
     print("Closed connection to FFmpeg")
 
 def handle_connection(client_socket, ffmpeg_socket):
+    N = 5
+    fps = 30
     buffer = b''
-    last_predicted_test = None
-    frame_buffer = []
-    fps = 15
     width, height = None, None
-
+    last_predicted_test = None
+    frame_batch_counter = 0
+    buffer_initialized = False
+    frame_buffer = deque(maxlen=TARGET_FRAMES)
+    
     try:
         while True:
             data = client_socket.recv(4096)
@@ -47,11 +51,18 @@ def handle_connection(client_socket, ffmpeg_socket):
                         height, width, _ = frame.shape
 
                     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    frame_buffer.append(rgb)
 
-                    if len(frame_buffer) == TARGET_FRAMES:
+                    if not buffer_initialized:
+                        frame_buffer.extend([rgb] * TARGET_FRAMES)
+                        buffer_initialized = True
+                    else:
+                        frame_buffer.append(rgb)
+                        
+                    frame_batch_counter += 1
+
+                    if frame_batch_counter == N:
                         last_predicted_test = process_gesture(list(frame_buffer), fps, width, height, ffmpeg_socket, last_predicted_test)
-                        frame_buffer = []
+                        frame_batch_counter = 0
                 else:
                     break
 
