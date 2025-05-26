@@ -153,4 +153,4 @@ To learn more about GeNYG, take a look at the following resources:
 - [GeNYG Slides and Video Tutorial](https://docs.google.com/presentation/d/1pI6-jf8Zmr2pg9bcfOz29vhMZNqATOW7OwnHf3yRQck/edit#slide=id.p)
 
 
-## ✨ About The Project 
+## About The Project
