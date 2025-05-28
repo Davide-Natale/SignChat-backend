@@ -13,3 +13,6 @@ Thumbs.db
 
 # Python cache
 __pycache__
+
+# Jwt secrets generation script
+./utils/generateJwtSecrets.js
