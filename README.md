@@ -94,6 +94,7 @@ Before using this project, make sure to configure it properly by following the i
 1. **Clone the repository**
     ```
     git clone https://github.com/Davide-Natale/SignChat-backend.git
+    cd SignChat-backend
     ```
 
 2. **Add Firebase Service Account Key**  
@@ -217,3 +218,9 @@ docker compose build
 - View logs of a specific service (e.g., node):
   ```
   docker compose logs -f <service_name>
+
+<p align="right">
+  <a href="#top">
+    <img src="assets/icons/arrow-up-circle.svg" alt="Back to top" style="width: 20px; height: 20px;">
+  </a>
+</p>
