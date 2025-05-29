@@ -110,7 +110,7 @@ Before using this project, make sure to configure it properly by following the i
     In order to be able to expose mobile APK file from backed through a RESTful API:
     - Create a folder named `downloads` in the root directory of the project
     - Place the latest APK file in it, the file must be   named `SignChat-latest.apk`.  
-      You can follow the instructions to generate the APK build described in the **[README](https://github.com/Davide-Natale/SignChat-frontend#get-started)** file of the SignChat-fronted repository
+      You can follow the instructions to generate the APK build described in the **[README](https://github.com/Davide-Natale/SignChat-frontend#build-the-app-remotely)** file of the SignChat-fronted repository
       <!-- TODO: change link once new README created -->
 
 4. **Environment variables configuration**  
@@ -156,6 +156,7 @@ Before using this project, make sure to configure it properly by following the i
     This will generate and print two secure random strings to be used as:
     - `JWT_SECRET`
     - `JWT_REFRESH_SECRET`
+
     Copy and paste them into your `.env` file accordingly
 
 6. **Supabase Configuration**  
@@ -175,6 +176,14 @@ Before using this project, make sure to configure it properly by following the i
         - Use the bucket name you created as `SUPABASE_BUCKET`
 
         Make sure to insert these values into your `.env` file as shown in point 4.
+
+7. **AI Model configuration**  
+In order to enable AI features powered by the **Python Microservice**, you need to provide a trained `Keras` model file in the appropriate directory:
+    - Rename the file as `best_model.keras`
+    - Place the model file into the following directory:
+      ```
+      /service/ai/video_to_text
+      ```
 
 ## **Usage**
 In order to run and manage the project using Docker Compose, please refer to the commands described below:
@@ -212,7 +221,7 @@ docker compose build
 
 - View logs of all services:
   ```
-  dockers compose logs -f
+  docker compose logs -f
   ```
 
 - View logs of a specific service (e.g., node):

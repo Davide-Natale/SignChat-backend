@@ -169,11 +169,13 @@ exports.deleteProfile = async (req, res) => {
         //  Save user email before deletion to send email confirmation
         const email = user.email;
 
-        //  Delete profile image file
-        const imagePath = user.imageProfile.split(`/object/public/${process.env.SUPABASE_BUCKET}/`)[1];
+        //  Delete profile image file, if exists
+        if (user.imageProfile) {
+            const imagePath = user.imageProfile.split(`/object/public/${process.env.SUPABASE_BUCKET}/`)[1];
 
-        if (imagePath) {
-            await supabase.storage.from(process.env.SUPABASE_BUCKET).remove([imagePath]);
+            if (imagePath) {
+                await supabase.storage.from(process.env.SUPABASE_BUCKET).remove([imagePath]);
+            }
         }
 
         //  Delete user from database
