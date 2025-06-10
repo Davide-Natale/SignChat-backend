@@ -70,11 +70,8 @@ const consumeAndProduce = async (router, videoPlainTransport, audioPlainTranspor
     rtpParameters: audioRtpParameters
   });
 
-  accessibilityConsumer.on("transportclose", () => {
+  videoPlainTransport.observer.on("close", () => {
     videoFFmpeg.kill('SIGINT');
-  });
-
-  accessibilityProducer.on("transportclose", () => {
     audioFFmpeg.kill('SIGINT');
   });
 

@@ -1,8 +1,8 @@
-import socket
 import cv2
+import socket
 import numpy as np
 from collections import deque
-from video_to_text.translate import process_gesture
+from translation.translate import process_gesture
 
 def open_ffmpeg_connection(host, port):
     ffmpeg_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

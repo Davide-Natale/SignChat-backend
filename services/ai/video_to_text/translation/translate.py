@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from gtts import gTTS
 from pydub import AudioSegment
-from video_to_text.utils import load_labels_mapping, preprocess_pose
+from translation.utils import load_labels_mapping, preprocess_pose
 from pose_format.utils.holistic import load_holistic
 
 # Parameters

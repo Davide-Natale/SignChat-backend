@@ -182,7 +182,7 @@ In order to enable AI features powered by the **Python Microservice**, you need 
     - Rename the file as `best_model.keras`
     - Place the model file into the following directory:
       ```
-      /service/ai/video_to_text
+      /service/ai/video_to_text/translation
       ```
 
 ## **Usage**
