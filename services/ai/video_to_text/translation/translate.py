@@ -1,8 +1,10 @@
 import os
 import io
+import torch
+import tempfile
 import numpy as np
 import tensorflow as tf
-from gtts import gTTS
+from TTS.api import TTS
 from pydub import AudioSegment
 from translation.utils import load_labels_mapping, preprocess_pose
 from pose_format.utils.holistic import load_holistic
@@ -20,6 +22,11 @@ index_to_label = load_labels_mapping(csv_path)
 
 # Loading model
 model = tf.keras.models.load_model(model_path)
+
+# Loading TTS model
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+tts_model = TTS(model_name="tts_models/en/ljspeech/fast_pitch")
+tts_model.to(device)
 
 def process_gesture(frame_buffer, fps, width, height, ffmpeg_socket, last_predicted_text):
     # Translate framse to pose
@@ -45,21 +52,24 @@ def process_gesture(frame_buffer, fps, width, height, ffmpeg_socket, last_predic
     
     last_predicted_text = predicted_text
 
-    silence_start = (np.zeros(48000 * 2 // 10, dtype=np.int16)).tobytes()
-    ffmpeg_socket.sendall(silence_start)
+    try:
+        silence_start = (np.zeros(48000 * 2 // 10, dtype=np.int16)).tobytes()
+        ffmpeg_socket.sendall(silence_start)
 
-    tts = gTTS(predicted_text, lang='en')
-    mp3_fp = io.BytesIO()
-    tts.write_to_fp(mp3_fp)
-    mp3_fp.seek(0)
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as wav_fp:
+            tts_model.tts_to_file(text=predicted_text, file_path=wav_fp.name)
 
-    audio = AudioSegment.from_file(mp3_fp, format="mp3")
-    audio = audio.set_frame_rate(48000).set_channels(2).set_sample_width(2)
+            audio = AudioSegment.from_file(wav_fp.name, format="wav")
+            pcm_buffer = io.BytesIO()
+            audio.export(pcm_buffer, format="s16le", parameters=["-ar", "48000", "-ac", "2"])
 
-    pcm_data = audio.raw_data
-    ffmpeg_socket.sendall(pcm_data)
+            ffmpeg_socket.sendall(pcm_buffer.getvalue())
 
-    silence_end = (np.zeros(48000 * 2 // 5, dtype=np.int16)).tobytes()
-    ffmpeg_socket.sendall(silence_end)
+        silence_end = (np.zeros(48000 * 2 // 5, dtype=np.int16)).tobytes()
+        ffmpeg_socket.sendall(silence_end)
+
+    except ConnectionResetError:
+        print("[WARN] Connection reset by peer (ffmpeg socket closed). Stopping audio send.")
+        return last_predicted_text
 
     return predicted_text
