@@ -9,11 +9,11 @@ services:
     depends_on:
       - postgres
       - redis
-      - translator
+      - video-translator
     networks:
       - backend-network
 
-  translator:
+  video-translator:
     build: ./services/ai/video_to_text
     gpus: all
     environment:

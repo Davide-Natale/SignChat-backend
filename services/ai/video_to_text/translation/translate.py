@@ -68,8 +68,8 @@ def process_gesture(frame_buffer, fps, width, height, ffmpeg_socket, last_predic
         silence_end = (np.zeros(48000 * 2 // 5, dtype=np.int16)).tobytes()
         ffmpeg_socket.sendall(silence_end)
 
-    except ConnectionResetError:
-        print("[WARN] Connection reset by peer (ffmpeg socket closed). Stopping audio send.")
+    except (BrokenPipeError, ConnectionResetError) as e:
+        print(f"[WARN] Cannot write to ffmpeg socket: {type(e).__name__} - {e}")
         return last_predicted_text
 
     return predicted_text

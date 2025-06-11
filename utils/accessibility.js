@@ -2,13 +2,13 @@
 
 const { spawnFFmpeg } = require("./ffmpeg");
 
-const consumeAndProduce = async (router, videoPlainTransport, audioPlainTransport, producer) => {
-  const videoRtpPort = 5004;
-  const audioRtpPort = audioPlainTransport.tuple.localPort;
+const consumeAndProduce = async (router, sendPlainTransport, recvPlainTransport, producer) => {
+  const sendRtpPort = producer.kind === 'video' ? 5004 : 5005;
+  const recvRtpPort = recvPlainTransport.tuple.localPort;
 
-  await videoPlainTransport.connect({
+  await sendPlainTransport.connect({
     ip: '127.0.0.1',
-    port: videoRtpPort
+    port: sendRtpPort
   });
 
   const codecs = [];
@@ -23,22 +23,22 @@ const consumeAndProduce = async (router, videoPlainTransport, audioPlainTranspor
     rtcpFeedback: []
   };
 
-  const accessibilityConsumer = await videoPlainTransport.consume({
+  const accessibilityConsumer = await sendPlainTransport.consume({
     producerId: producer.id,
     rtpCapabilities,
     paused: true
   });
 
-  const videoFFmpegParameters = {
+  const recvFFmpegParameters = {
     kind: accessibilityConsumer.kind,
     codecs: accessibilityConsumer.rtpParameters.codecs,
     encodings: accessibilityConsumer.rtpParameters.encodings,
     cname: 'mediasoup',
-    inputPort: videoRtpPort,
-    outputPort: 9001
+    inputPort: sendRtpPort,
+    outputPort: producer.kind === 'video' ? 9001 : 9003
   };
 
-  const audioRtpParameters = {
+  const sendRtpParameters = {
     codecs:
       [
         {
@@ -53,26 +53,26 @@ const consumeAndProduce = async (router, videoPlainTransport, audioPlainTranspor
     encodings: [{ ssrc: 11111111 }]
   };
 
-  const audioFFmpegParameters = {
+  const sendFFmpegParameters = {
     kind: 'audio',
-    codecs: audioRtpParameters.codecs,
-    encodings: audioRtpParameters.encodings,
+    codecs: sendRtpParameters.codecs,
+    encodings: sendRtpParameters.encodings,
     cname: 'mediasoup',
     inputPort: 9002,
-    outputPort: audioRtpPort
+    outputPort: recvRtpPort
   }
 
-  const videoFFmpeg = spawnFFmpeg(videoFFmpegParameters, 'recv');
-  const audioFFmpeg = spawnFFmpeg(audioFFmpegParameters, 'send');
+  const recvFFmpeg = spawnFFmpeg(recvFFmpegParameters, 'recv');
+  const sendFFmpeg = spawnFFmpeg(sendFFmpegParameters, 'send');
 
-  const accessibilityProducer = await audioPlainTransport.produce({
+  const accessibilityProducer = await recvPlainTransport.produce({
     kind: 'audio',
-    rtpParameters: audioRtpParameters
+    rtpParameters: sendRtpParameters
   });
 
-  videoPlainTransport.observer.on("close", () => {
-    videoFFmpeg.kill('SIGINT');
-    audioFFmpeg.kill('SIGINT');
+  sendPlainTransport.observer.on("close", () => {
+    recvFFmpeg.kill('SIGINT');
+    sendFFmpeg.kill('SIGINT');
   });
 
   setTimeout(async () => {

@@ -326,17 +326,17 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
                     transports.delete(transportId);
                 });
 
-                if(userCall.useAccessibility && user.useAccessibility) {
-                    const audioplainTransport = transports.get(user.audioAccessibilityTransportId);
-                    const videoPlainTransport = transports.get(user.videoAccessibilityTransportId);
+                if (userCall.useAccessibility) {
+                    const sendPlainTransport = transports.get(user.sendPlainTransportId);
+                    const recvPlainTransport = transports.get(user.recvPlainTransportId);
+                    
+                    recvPlainTransport.close();
+                    sendPlainTransport.close();
+                    transports.delete(user.sendPlainTransportId);
+                    transports.delete(user.recvPlainTransportId);
 
-                    audioplainTransport.close();
-                    videoPlainTransport.close();
-                    transports.delete(user.audioAccessibilityTransportId);
-                    transports.delete(user.videoAccessibilityTransportId);
-
-                    delete user.audioAccessibilityTransportId;
-                    delete user.videoAccessibilityTransportId;
+                    delete user.sendPlainTransportId;
+                    delete user.recvPlainTransportId;
                 }
 
                 //  Delete all producers and consumers associated to user
@@ -358,17 +358,17 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
                     
                 });
 
-                if(otherUserCall.useAccessibility && otherUser.useAccessibility) {
-                    const audioplainTransport = transports.get(otherUser.audioAccessibilityTransportId);
-                    const videoPlainTransport = transports.get(otherUser.videoAccessibilityTransportId);
+                if (otherUserCall.useAccessibility) {
+                    const sendPlainTransport = transports.get(otherUser.sendPlainTransportId);
+                    const recvPlainTransport = transports.get(otherUser.recvPlainTransportId);
 
-                    audioplainTransport.close();
-                    videoPlainTransport.close();
-                    transports.delete(otherUser.audioAccessibilityTransportId);
-                    transports.delete(otherUser.videoAccessibilityTransportId);
+                    sendPlainTransport.close();
+                    recvPlainTransport.close();
+                    transports.delete(otherUser.sendPlainTransportId);
+                    transports.delete(otherUser.recvPlainTransportId);
 
-                    delete otherUser.audioAccessibilityTransportId;
-                    delete otherUser.videoAccessibilityTransportId;
+                    delete otherUser.sendPlainTransportId;
+                    delete otherUser.recvPlainTransportId;
                 }
 
                 //  Delete all producers and consumers associated to otherUser
@@ -404,8 +404,10 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
     };
 
     const onAnswerCall = async ({ callId, callerUserId, deviceId }) => {
-        let videoPlainTransport;
-        let audioPlainTransport;
+        let callerUserSendPlainTransport;
+        let callerUserRecvPlainTransport;
+        let targetUserSendPlainTransport;
+        let targetUserRecvPlainTransport;
         const targetUser = activeUsers.get(userId);
         const callerUser = activeUsers.get(callerUserId);
     
@@ -447,12 +449,22 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             const isAccessibilityCall = targetUser.useAccessibility !== callerUser.useAccessibility;
 
             if(isAccessibilityCall) {
-                //  Create plain transports for accessibility user
-                videoPlainTransport = await createPlainTransport(router, 'send');
-                audioPlainTransport = await createPlainTransport(router, 'recv');
+                //  Create plain transports for both target and caller user
+                callerUserSendPlainTransport = await createPlainTransport(router, 'send');
+                callerUserRecvPlainTransport = await createPlainTransport(router, 'recv');
+                targetUserSendPlainTransport = await createPlainTransport(router, 'send');
+                targetUserRecvPlainTransport = await createPlainTransport(router, 'recv');
 
-                transports.set(videoPlainTransport.id, videoPlainTransport);
-                transports.set(audioPlainTransport.id, audioPlainTransport);
+                transports.set(callerUserSendPlainTransport.id, callerUserSendPlainTransport);
+                transports.set(callerUserRecvPlainTransport.id, callerUserRecvPlainTransport);
+                transports.set(targetUserSendPlainTransport.id, targetUserSendPlainTransport);
+                transports.set(targetUserRecvPlainTransport.id, targetUserRecvPlainTransport);
+
+                //  Update caller and target user info accordingly
+                callerUser.sendPlainTransportId = callerUserSendPlainTransport.id;
+                callerUser.recvPlainTransportId = callerUserRecvPlainTransport.id;
+                targetUser.sendPlainTransportId = targetUserSendPlainTransport.id; 
+                targetUser.recvPlainTransportId = targetUserRecvPlainTransport.id;
             }
 
             //  Update caller user status and corresponding active call
@@ -464,11 +476,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
             callerUserCall.useAccessibility = isAccessibilityCall;
             callerUser.status = 'busy';
 
-            if (isAccessibilityCall && callerUser.useAccessibility) {
-                callerUser.videoAccessibilityTransportId = videoPlainTransport.id;
-                callerUser.audioAccessibilityTransportId = audioPlainTransport.id;
-            }
-
             //  Update target user status and add call to active calls
             targetUser.activeCalls.set(callerUserId, {
                 callId,
@@ -479,11 +486,6 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
 
             targetUser.transportIds.push(sendTransport.id, recvTransport.id);
             targetUser.status = 'busy';
-
-            if (isAccessibilityCall && targetUser.useAccessibility) {
-                targetUser.videoAccessibilityTransportId = videoPlainTransport.id; 
-                targetUser.audioAccessibilityTransportId = audioPlainTransport.id;
-            }
 
             //  Notify both caller and target users
             if(fcmTokens.length > 0) {
