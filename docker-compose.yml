@@ -12,9 +12,18 @@ services:
       - video-translator
     networks:
       - backend-network
-
+  
   video-translator:
     build: ./services/ai/video_to_text
+    gpus: all
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+    networks:
+      - backend-network
+
+  audio-translator:
+    build: ./services/ai/text_to_video
     gpus: all
     environment:
       - NVIDIA_VISIBLE_DEVICES=all

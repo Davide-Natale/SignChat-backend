@@ -29,7 +29,7 @@ const getFFmpegArgs = (parameters, action) => {
       '-f', 'image2pipe',
       '-vf', 'fps=30',
       '-vcodec', 'mjpeg',
-      `tcp://translator:${parameters.outputPort}`
+      `tcp://video-translator:${parameters.outputPort}`
     ];
   } else if (parameters.kind === 'audio' && action === 'send') {
     const codec = parameters.codecs[0];
@@ -50,6 +50,40 @@ const getFFmpegArgs = (parameters, action) => {
       '-f', 'tee',
       `[select=a:f=rtp:ssrc=${ssrc}:payload_type=${payloadType}]rtp://127.0.0.1:${parameters.outputPort}`
     ];
+  } else if (parameters.kind === 'audio' && action === 'recv') {
+    return [
+      '-loglevel', 'warning',
+      '-protocol_whitelist', 'pipe,udp,rtp,file,crypto,tcp',
+      '-fflags', '+genpts',
+      '-f', 'sdp',
+      '-i', 'pipe:0',
+      '-acodec', 'pcm_s16le',
+      '-f', 's16le',
+      '-ac', '2',
+      '-ar', '48000',
+      `tcp://audio-translator:${parameters.outputPort}`
+    ];
+  } else if (parameters.kind === 'video' && action === 'send') {
+    const codec = parameters.codecs[0];
+    const ssrc = parameters.encodings[0].ssrc;
+    const payloadType = codec.payloadType;
+
+    return [
+      '-loglevel', 'warning',
+      '-nostdin',
+      '-re',
+      '-f', 'image2pipe',
+      '-vcodec', 'mjpeg',
+      '-framerate', '30',
+      '-i', `tcp://0.0.0.0:${parameters.inputPort}?listen`,
+      '-c:v', 'libvpx',
+      '-b:v', '1000k',
+      '-deadline', 'realtime',
+      '-cpu-used', '4',
+      '-map', '0:v:0',
+      '-f', 'tee',
+      `[select=v:f=rtp:ssrc=${ssrc}:payload_type=${payloadType}]rtp://127.0.0.1:${parameters.outputPort}`
+    ];
   }
 
   throw new Error(`Unsupported combination of kind (${parameters.kind}) and action (${action}).`);
@@ -61,8 +95,8 @@ const spawnFFmpeg = (parameters, action) => {
   const process = child_process.spawn('ffmpeg', args, { stdio: ['pipe', 'pipe', 'pipe'] });
 
   setupProcessLogging(process, tag);
-
-  if (parameters.kind === 'video' && action === 'recv') {
+  
+  if (action === 'recv') {
     const sdpString = createSdpText(parameters, action);
     const sdpStream = convertStringToStream(sdpString);
 

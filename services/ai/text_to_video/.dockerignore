@@ -1,0 +1,12 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Python Virtual Environment
+.venv
+
+# Python cache
+__pycache__
+
+# Spoken_to_signed_translation repository
+translation/spoken_to_signed_translation/

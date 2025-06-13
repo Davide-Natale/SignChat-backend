@@ -495,8 +495,8 @@ module.exports = (io, activeUsers, socket, router, transports, producers, consum
                 });
             }
 
-            io.to(socket.id).emit('call-joined', { callId, sendTransportParams, recvTransportParams });
-            io.to(callerUserSocketId).emit('call-answered');
+            io.to(socket.id).emit('call-joined', { callId, isAccessibilityCall, sendTransportParams, recvTransportParams });
+            io.to(callerUserSocketId).emit('call-answered', { isAccessibilityCall });
         } catch (error) {
             io.to(socket.id).emit('call-error', { message: error.message });
         }

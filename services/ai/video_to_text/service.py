@@ -4,21 +4,21 @@ import numpy as np
 from collections import deque
 from translation.translate import process_gesture
 
-def open_ffmpeg_connection(host, port):
+def open_ffmpeg_connection(host: str, port: int):
     ffmpeg_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ffmpeg_socket.connect((host, port))
     print("Opened connection to FFmpeg")
 
     return ffmpeg_socket
 
-def close_ffmpeg_connection(ffmpeg_socket):
+def close_ffmpeg_connection(ffmpeg_socket: socket.socket):
     ffmpeg_socket.close()
     print("Closed connection to FFmpeg")
 
-def handle_connection(client_socket, ffmpeg_socket):
+def handle_connection(client_socket: socket.socket, ffmpeg_socket: socket.socket):
     N = 5
     fps = 30
-    buffer = b''
+    buffer = bytearray()
     width, height = None, None
     last_predicted_test = None
     frame_batch_counter = 0
@@ -27,11 +27,19 @@ def handle_connection(client_socket, ffmpeg_socket):
     
     try:
         while True:
-            data = client_socket.recv(4096)
+            try:
+                data = client_socket.recv(4096)
+            except ConnectionResetError:
+                print("Connection reset by peer (FFmpeg process terminated).")
+                break
+            except Exception as e:
+                print(f"Unexpected error during recv: {e}")
+                break
+            
             if not data:
                 break
 
-            buffer += data
+            buffer.extend(data)
 
             while True:
                 start = buffer.find(b'\xff\xd8')  # JPEG start
@@ -39,7 +47,7 @@ def handle_connection(client_socket, ffmpeg_socket):
 
                 if start != -1 and end != -1 and end > start:
                     jpg = buffer[start:end+2]
-                    buffer = buffer[end+2:]
+                    del buffer[:end+2]
 
                     img_array = np.frombuffer(jpg, dtype=np.uint8)
                     frame = cv2.imdecode(img_array, cv2.IMREAD_COLOR)

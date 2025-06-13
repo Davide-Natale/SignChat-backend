@@ -50,7 +50,7 @@ module.exports = (io, activeUsers, socket, router, transports, producers, pendin
             //  Add new producer to user
             user.producerIds.push(producer.id);
 
-            if (userCall.useAccessibility && user.useAccessibility && kind === 'video') {
+            if (userCall.useAccessibility && ((user.useAccessibility && kind === 'video') || (!user.useAccessibility && kind === 'audio'))) {
                 const sendPlainTransport = transports.get(user.sendPlainTransportId);
                 const recvPlainTransport = transports.get(user.recvPlainTransportId);
                 const { accessibilityConsumer, accessibilityProducer } = await consumeAndProduce(router, sendPlainTransport, recvPlainTransport, producer);

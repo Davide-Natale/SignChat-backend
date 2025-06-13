@@ -1,5 +1,5 @@
 # Dependencies
-node_modules
+node_modules/
 
 # Environment variables
 .env
@@ -8,11 +8,8 @@ node_modules
 .DS_Store
 Thumbs.db
 
-# Python Virtual Environment
-.venv
-
-# Python cache
-__pycache__
-
 # Jwt secrets generation script
 ./utils/generateJwtSecrets.js
+
+# Other services
+services/

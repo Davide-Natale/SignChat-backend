@@ -13,7 +13,7 @@ from pose_format.utils.holistic import load_holistic
 CSV_NAME = 'jester.csv'
 MODEL_FILE_NAME = 'best_model.keras'
 
-script_dir = os.path.dirname(__file__)
+script_dir = os.path.dirname(os.path.abspath(__file__))
 csv_path = os.path.join(script_dir, CSV_NAME)
 model_path = os.path.join(script_dir, MODEL_FILE_NAME)
 

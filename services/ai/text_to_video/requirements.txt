@@ -1,0 +1,9 @@
+torch==2.1.2+cu118
+torchaudio==2.1.2+cu118
+torchvision==0.16.2+cu118
+--extra-index-url https://download.pytorch.org/whl/cu118
+git+https://github.com/openai/whisper.git
+librosa==0.10.0
+numpy==1.24.3
+pose-format==0.9.1
+opencv-python==4.9.0.80
