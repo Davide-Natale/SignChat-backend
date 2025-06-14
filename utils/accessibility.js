@@ -33,7 +33,7 @@ const getRtpParameters = (kind) => {
 };
 
 const consumeAndProduce = async (router, sendPlainTransport, recvPlainTransport, producer) => {
-  const sendRtpPort = producer.kind === 'video' ? 5004 : 5003;
+  const sendRtpPort = producer.kind === 'video' ? 5003 : 6003;
   const recvRtpPort = recvPlainTransport.tuple.localPort;
 
   await sendPlainTransport.connect({
