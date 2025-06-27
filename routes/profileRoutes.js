@@ -63,7 +63,7 @@ router.get('/profile', authenticate, getProfile);
  * @swagger
  * /profile:
  *   put:
- *     summary: Upate user profile
+ *     summary: Update user profile
  *     description: Update profile information of the currently authenticated user
  *     tags:
  *       - Profile

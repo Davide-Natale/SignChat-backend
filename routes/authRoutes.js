@@ -173,8 +173,6 @@ router.post('/login', [
  *     description: Refresh access and refresh user tokens given the previous ones
  *     tags:
  *       - Auth
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       description: User refresh token
  *       required: true
