@@ -1,4 +1,4 @@
-tensorflow==2.19.0
+tensorflow[and-cuda]==2.19.0
 TTS==0.22.0
 numpy==1.26.0
 pandas==1.5.3
