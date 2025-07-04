@@ -39,7 +39,6 @@ This project aims to bridge this communication gap by developing a mobile applic
 
 The project consists of two main repositories:
 
-<!-- TODO: change link when repositories uploaded to Team -->
 - __[SignChat-backend](https://github.com/Davide-Natale/SignChat-backend.git)__ - A backend architecture managed through **Docker Compose**
 
 - __[SignChat-frontend](https://github.com/Davide-Natale/SignChat-frontend.git)__ - A **React Native** mobile application written in **Typescript** based on **Expo**
@@ -111,7 +110,6 @@ Before using this project, make sure to configure it properly by following the i
     - Create a folder named `downloads` in the root directory of the project
     - Place the latest APK file in it, the file must be   named `SignChat-latest.apk`.  
       You can follow the instructions to generate the APK build described in the **[README](https://github.com/Davide-Natale/SignChat-frontend#build-the-app-remotely)** file of the SignChat-fronted repository
-      <!-- TODO: change link once new README created -->
 
 4. **Environment variables configuration**  
     Create a `.env` file in the root directory of the project based on the template below:
